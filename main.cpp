@@ -20,7 +20,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#include "includes/learnopengl/shader.hpp"
+#include "shader.hpp"
 #include "includes/square.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
