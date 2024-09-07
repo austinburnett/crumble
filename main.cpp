@@ -23,6 +23,7 @@
 #include "includes/square.hpp"
 
 glm::vec3 screen_to_ndc(double x, double y, const int width, const int height);
+glm::vec3 matrix_to_ndc(int i, int j, const int width, const int height);
 
 // GLFW callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -33,22 +34,19 @@ void error_callback(int error, const char* description);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 // Settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 550;
+const unsigned int SCR_HEIGHT = 550;
 
 // Deltatime
 float DELTA_TIME = 0.0f; // Time between current and last frame 
 float LAST_FRAME = 0.0f; // Time of last frame
-
-// Mouse 
-float LAST_X = 400, LAST_Y = 300;
-float FIRST_MOUSE_INPUT = true;
 
 // The list of positions needs to be globally accessible
 static std::vector<glm::vec3> square_translations = {};
 
 // Pixel Simulation Buffer
 //int pixel_buffer[100][100];
+int grid[SCR_WIDTH][SCR_HEIGHT];
 
 int main() {
     // Initialize and configure glfw
@@ -82,6 +80,15 @@ int main() {
         return -1;
     }
 
+    // Underlying grid data structure of the pixel simulation
+    //int grid[SCR_WIDTH][SCR_HEIGHT];
+
+    for(int i = 0; i < SCR_WIDTH; ++i) {
+        for(int j = 0; j < SCR_HEIGHT; ++j) {
+            grid[i][j] = 0;
+        }
+    }
+
     Shader ourShader("./resources/shader.vs", "./resources/shader.fs");
     Square square;
 
@@ -102,14 +109,41 @@ int main() {
         ourShader.use();
         glBindVertexArray(square.VAO);
 
-        for(int i = 0; i < square_translations.size(); ++i) {
-            // Construct a model matrix to render squares at the cursor pos
-            glm::mat4 model(1.0f);
-            model = glm::translate(model, square_translations[i]);
-            ourShader.setMat4("model", model);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        // Iterate over all pixels on the screen and draw a
+        // particle there if the value in the grid is 1
+        for(int i = 0; i < SCR_WIDTH; ++i) {
+            for(int j = 0; j < SCR_HEIGHT; ++j) {
+                glm::mat4 model(1.0f);
+                if(grid[i][j] == 1) {
+                    if(j > 0 && i > 0 && i < SCR_WIDTH && j < SCR_HEIGHT) {
+                        // Move particle down one block if nothing is there
+                        if(grid[i][j-1] == 0) {
+                            grid[i][j] = 0;
+                            grid[i][j-1] = 1;
+                        }
+                        // Move particle left by one block if nothing is there
+                        else if(grid[i-1][j-1] == 0) {
+                            grid[i][j] = 0;
+                            grid[i-1][j-1] = 1;
+                        }
+                        // Move particle right by one block if nothing is there
+                        else if(grid[i+1][j-1] == 0) {
+                            grid[i][j] = 0;
+                            grid[i+1][j-1] = 1;
+                        }
+                        glm::vec3 translation = matrix_to_ndc(i, j, SCR_WIDTH, SCR_HEIGHT);
+                        model = glm::translate(model, translation);
+                        ourShader.setMat4("model", model);
+                    }
+                    else if(j == 0) {
+                        glm::vec3 translation = matrix_to_ndc(i, j, SCR_WIDTH, SCR_HEIGHT);
+                        model = glm::translate(model, translation);
+                        ourShader.setMat4("model", model);
+                    }
+                }
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            }
         }
-
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -143,16 +177,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     double xpos, ypos;
     int width, height;
 
-    // Offset required to render a square centered at the cursor pos
-    const double square_offset_to_center = 0.05;
-
     if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         glfwGetCursorPos(window, &xpos, &ypos);
-        glfwGetFramebufferSize(window, &width, &height);
-        glm::vec3 cursor_point_in_ndc = screen_to_ndc(xpos, ypos, width, height);
-        cursor_point_in_ndc.x -= square_offset_to_center;
-        cursor_point_in_ndc.y -= square_offset_to_center;
-        square_translations.push_back(cursor_point_in_ndc);
+        grid[int(xpos)][int(SCR_HEIGHT-ypos)] = 1;
     }
 }
 
@@ -163,6 +190,14 @@ glm::vec3 screen_to_ndc(double x, double y, const int width, const int height) {
     glm::vec3 point;
     point.x = ((x/width)*2)-1;
     point.y = -1.0*(((y/height)*2)-1);
+    point.z = 0.0;
+    return point;
+}
+
+glm::vec3 matrix_to_ndc(int i, int j, const int width, const int height) {
+    glm::vec3 point;
+    point.x = (((float)i/width)*2)-1;
+    point.y = 1.0*((((float)j/height)*2)-1);
     point.z = 0.0;
     return point;
 }

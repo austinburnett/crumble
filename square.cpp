@@ -4,10 +4,10 @@
 Square::Square() {
     float vertices[] = {
          0.0f, 0.0f, 1.0f, // bottom-left
-         0.1f, 0.0f, 1.0f, // bottom-right
-         0.1f, 0.1f, 1.0f, // top-right
+         0.01f, 0.0f, 1.0f, // bottom-right
+         0.01f, 0.01f, 1.0f, // top-right
 
-         0.0f, 0.1f, 1.0f, // top-left
+         0.0f, 0.01f, 1.0f, // top-left
     };
 
     int indices[] = {
