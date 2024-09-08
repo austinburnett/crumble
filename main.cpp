@@ -15,6 +15,7 @@
 #include <glm/glm.hpp>
 #include <iostream>
 #include <vector>
+#include <thread>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -43,6 +44,10 @@ float LAST_FRAME = 0.0f; // Time of last frame
 
 // The list of positions needs to be globally accessible
 static std::vector<glm::vec3> square_translations = {};
+
+// Flag that dictates whether or not the worker thread will plot squares
+static bool READY = false;
+static std::thread worker;
 
 // Pixel Simulation Buffer
 //int pixel_buffer[100][100];
@@ -148,8 +153,10 @@ int main() {
         glfwPollEvents();
     }
 
+    // Cleanup
     glfwDestroyWindow(window);
     glfwTerminate();
+    worker.detach();
     return (EXIT_SUCCESS);
 }
 
@@ -170,16 +177,33 @@ void error_callback(int error, const char* description) {
     std::cout << "Error: " << error << '\n' << description << '\n';
 }
 
+// Plots the particle on the screen at the cursor's location
+void plot_particles_on_screen(double xpos, double ypos, GLFWwindow* window) {
+    while(true) {
+        if(READY) {
+            glfwGetCursorPos(window, &xpos, &ypos);
+            grid[int(xpos)][int(SCR_HEIGHT-ypos)] = 1;
+        }
+    }
+}
+
 // Whenever a mouse button is pressed this callback function executes to
 // append a new position at the location where the left mouse button was pressed
 // so a primitive can be rendered at said position.
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     double xpos, ypos;
     int width, height;
+    static bool has_started = 0;
 
     if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        glfwGetCursorPos(window, &xpos, &ypos);
-        grid[int(xpos)][int(SCR_HEIGHT-ypos)] = 1;
+        READY = true;
+        if(!has_started) {
+            has_started = 1;
+            worker = std::thread(plot_particles_on_screen, xpos, ypos, window);
+        }
+    }
+    else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+        READY = false;
     }
 }
 
