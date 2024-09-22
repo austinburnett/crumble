@@ -18,7 +18,7 @@ find_library(GLFW_LIBRARY glfw)
 
 # Create executable from source files called Learnopengl
 #set(RUNTIME_OUTPUT_DIRECTORY ../)
-add_executable(falling-pixels ../main.cpp ../glad.c ../square.cpp)
+add_executable(falling-pixels ../main.cpp ../glad.c ../square.cpp ../particle.cpp)
 
 target_link_libraries(falling-pixels ${GLFW_LIBRARY})
 target_link_libraries(falling-pixels ${COCOA_LIBRARY})

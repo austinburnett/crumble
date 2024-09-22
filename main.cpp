@@ -22,9 +22,13 @@
 
 #include "shader.hpp"
 #include "includes/square.hpp"
+#include "includes/particle.hpp"
 
+void plot_particles_on_screen(double xpos, double ypos, GLFWwindow* window);
 glm::vec3 screen_to_ndc(double x, double y, const int width, const int height);
 glm::vec3 matrix_to_ndc(int i, int j, const int width, const int height);
+bool is_particle_in_row(int row);
+void update_particles_on_screen(int start, int end, Shader& ourShader);
 
 // GLFW callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -42,16 +46,16 @@ const unsigned int SCR_HEIGHT = 550;
 float DELTA_TIME = 0.0f; // Time between current and last frame 
 float LAST_FRAME = 0.0f; // Time of last frame
 
-// The list of positions needs to be globally accessible
-static std::vector<glm::vec3> square_translations = {};
-
 // Flag that dictates whether or not the worker thread will plot squares
 static bool READY = false;
+
+// Flag that terminates the worker thread's while loop
+static bool IS_RUNNING = true;
+
 static std::thread worker;
 
 // Pixel Simulation Buffer
-//int pixel_buffer[100][100];
-int grid[SCR_WIDTH][SCR_HEIGHT];
+Particle* grid[SCR_WIDTH][SCR_HEIGHT];
 
 int main() {
     // Initialize and configure glfw
@@ -85,12 +89,10 @@ int main() {
         return -1;
     }
 
-    // Underlying grid data structure of the pixel simulation
-    //int grid[SCR_WIDTH][SCR_HEIGHT];
-
+    // Initialize all grid values to NULL which indicates no particles are on the screen
     for(int i = 0; i < SCR_WIDTH; ++i) {
         for(int j = 0; j < SCR_HEIGHT; ++j) {
-            grid[i][j] = 0;
+            grid[i][j] = NULL;
         }
     }
 
@@ -100,6 +102,8 @@ int main() {
     double xpos, ypos;
     int width, height;
     glm::vec3 point;
+
+    std::thread render_worker;
 
     // Render loop
     while (!glfwWindowShouldClose(window)) {
@@ -117,36 +121,31 @@ int main() {
         // Iterate over all pixels on the screen and draw a
         // particle there if the value in the grid is 1
         for(int i = 0; i < SCR_WIDTH; ++i) {
+            if(!is_particle_in_row(i))
+                continue;
             for(int j = 0; j < SCR_HEIGHT; ++j) {
                 glm::mat4 model(1.0f);
-                if(grid[i][j] == 1) {
-                    if(j > 0 && i > 0 && i < SCR_WIDTH && j < SCR_HEIGHT) {
-                        // Move particle down one block if nothing is there
-                        if(grid[i][j-1] == 0) {
-                            grid[i][j] = 0;
-                            grid[i][j-1] = 1;
-                        }
-                        // Move particle left by one block if nothing is there
-                        else if(grid[i-1][j-1] == 0) {
-                            grid[i][j] = 0;
-                            grid[i-1][j-1] = 1;
-                        }
-                        // Move particle right by one block if nothing is there
-                        else if(grid[i+1][j-1] == 0) {
-                            grid[i][j] = 0;
-                            grid[i+1][j-1] = 1;
-                        }
-                        glm::vec3 translation = matrix_to_ndc(i, j, SCR_WIDTH, SCR_HEIGHT);
-                        model = glm::translate(model, translation);
-                        ourShader.setMat4("model", model);
+                if(grid[i][j] != NULL && !grid[i][j]->has_been_drawn) {
+                    glm::vec3 color;
+                    color = grid[i][j]->get_color();
+
+                    if((j > 0 && i > 0) && (i < SCR_WIDTH && j < SCR_HEIGHT)) {
+                        grid[i][j]->has_been_drawn = true;
+                        grid[i][j]->update(i, j, grid);
                     }
-                    else if(j == 0) {
-                        glm::vec3 translation = matrix_to_ndc(i, j, SCR_WIDTH, SCR_HEIGHT);
-                        model = glm::translate(model, translation);
-                        ourShader.setMat4("model", model);
-                    }
+                    glm::vec3 translation = matrix_to_ndc(i, j, SCR_WIDTH, SCR_HEIGHT);
+                    model = glm::translate(model, translation);
+                    ourShader.setMat4("model", model);
+                    ourShader.setVec3("particleColor", color);
                 }
                 glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            }
+        }
+        // Reset particle's has_been_drawn flag
+        for(int i = 0; i < SCR_WIDTH; ++i) {
+            for(int j = 0; j < SCR_HEIGHT; ++j) {
+                if(grid[i][j] != NULL)
+                    grid[i][j]->has_been_drawn = false;
             }
         }
         glfwSwapBuffers(window);
@@ -154,9 +153,10 @@ int main() {
     }
 
     // Cleanup
+    IS_RUNNING = false;
+    worker.join();
     glfwDestroyWindow(window);
     glfwTerminate();
-    worker.detach();
     return (EXIT_SUCCESS);
 }
 
@@ -179,10 +179,12 @@ void error_callback(int error, const char* description) {
 
 // Plots the particle on the screen at the cursor's location
 void plot_particles_on_screen(double xpos, double ypos, GLFWwindow* window) {
-    while(true) {
+    while(IS_RUNNING) {
         if(READY) {
             glfwGetCursorPos(window, &xpos, &ypos);
-            grid[int(xpos)][int(SCR_HEIGHT-ypos)] = 1;
+            if(int(xpos) >= 0 && int(SCR_HEIGHT-ypos) >= 0)
+                if(int(xpos) < SCR_WIDTH && int(ypos) < SCR_HEIGHT)
+                    grid[int(xpos)][int(SCR_HEIGHT-ypos)] = new WaterParticle();
         }
     }
 }
@@ -218,10 +220,47 @@ glm::vec3 screen_to_ndc(double x, double y, const int width, const int height) {
     return point;
 }
 
+// Convert from the matrix with the range [0, SCR_WIDTH] and [0, SCR_HEIGHT]
+// corresponding to the rows and columns of the matrix to NDC where
+// Opengl expects vertices between [-1, 1] with a y-axis pointing up
 glm::vec3 matrix_to_ndc(int i, int j, const int width, const int height) {
     glm::vec3 point;
     point.x = (((float)i/width)*2)-1;
     point.y = 1.0*((((float)j/height)*2)-1);
     point.z = 0.0;
     return point;
+}
+
+// Determines whether or not a particle is present in a row
+bool is_particle_in_row(int row) {
+    for(int i = 0; i < SCR_WIDTH; ++i) {
+        if(grid[row][i] != NULL) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Updates all of the particles within the given start and end range
+void update_particles_on_screen(int start, int end, Shader& ourShader) {
+        for(int i = start; i < end; ++i) {
+            if(!is_particle_in_row(i))
+                continue;
+            for(int j = 0; j < SCR_HEIGHT; ++j) {
+                glm::mat4 model(1.0f);
+                if(grid[i][j] != NULL) {
+                    glm::vec3 color;
+                    color = grid[i][j]->get_color();
+
+                    if((j > 0 && i > 0) && (i < SCR_WIDTH && j < SCR_HEIGHT)) {
+                        grid[i][j]->update(i, j, grid);
+                    }
+                    glm::vec3 translation = matrix_to_ndc(i, j, SCR_WIDTH, SCR_HEIGHT);
+                    model = glm::translate(model, translation);
+                    ourShader.setMat4("model", model);
+                    ourShader.setVec3("particleColor", color);
+                }
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            }
+        }
 }
