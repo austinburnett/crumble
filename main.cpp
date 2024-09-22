@@ -14,7 +14,6 @@
 #include "GLFW/glfw3.h"
 #include <glm/glm.hpp>
 #include <iostream>
-#include <vector>
 #include <thread>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -124,8 +123,8 @@ int main() {
             if(!is_particle_in_row(i))
                 continue;
             for(int j = 0; j < SCR_HEIGHT; ++j) {
-                glm::mat4 model(1.0f);
                 if(grid[i][j] != NULL && !grid[i][j]->has_been_drawn) {
+                    glm::mat4 model(1.0f);
                     glm::vec3 color;
                     color = grid[i][j]->get_color();
 
@@ -137,8 +136,8 @@ int main() {
                     model = glm::translate(model, translation);
                     ourShader.setMat4("model", model);
                     ourShader.setVec3("particleColor", color);
+                    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
                 }
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             }
         }
         // Reset particle's has_been_drawn flag
