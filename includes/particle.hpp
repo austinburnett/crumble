@@ -26,7 +26,7 @@ class SandParticle: public Particle {
 public:
     SandParticle() {};
 
-    void update(int i, int j, Particle* (&grid)[550][550]) const override; 
+    void update(const int i, const int j, Particle* (&grid)[550][550]) const override; 
 
     glm::vec3 get_color() const override;
 };

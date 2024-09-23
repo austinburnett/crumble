@@ -1,5 +1,4 @@
 // Ensure GLFW doesn't include the OpenGL header
-#include "glm/ext/matrix_transform.hpp"
 #define GLFW_INCLUDE_NONE
 
 // Autocomplete works better when using OpenGL headers
@@ -13,6 +12,7 @@
 
 #include "GLFW/glfw3.h"
 #include <glm/glm.hpp>
+#include <glm/ext/matrix_transform.hpp>
 #include <iostream>
 #include <thread>
 
@@ -54,6 +54,7 @@ static bool IS_RUNNING = true;
 static std::thread worker;
 
 // Pixel Simulation Buffer
+// [0][0] is the bottom-left corner of the window
 Particle* grid[SCR_WIDTH][SCR_HEIGHT];
 
 int main() {
@@ -111,7 +112,7 @@ int main() {
         LAST_FRAME = currentFrame;
 
         processInput(window);
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT); 
 
         ourShader.use();
@@ -125,10 +126,9 @@ int main() {
             for(int j = 0; j < SCR_HEIGHT; ++j) {
                 if(grid[i][j] != NULL && !grid[i][j]->has_been_drawn) {
                     glm::mat4 model(1.0f);
-                    glm::vec3 color;
-                    color = grid[i][j]->get_color();
+                    glm::vec3 color = grid[i][j]->get_color();
 
-                    if((j > 0 && i > 0) && (i < SCR_WIDTH && j < SCR_HEIGHT)) {
+                    if(j >= 0 && i >= 0) {
                         grid[i][j]->has_been_drawn = true;
                         grid[i][j]->update(i, j, grid);
                     }
