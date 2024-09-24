@@ -9,15 +9,13 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
-// Flag that dictates whether or not the worker thread will plot squares
-static bool READY = false;
+// Flag that dictates whether the worker thread will run
+static bool IS_THREAD_READY = false;
 
 static std::thread worker;
 
 // GLFW callback declarations
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 void error_callback(int error, const char* description);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
@@ -51,13 +49,13 @@ inline void mouse_button_callback(GLFWwindow* window, int button, int action, in
     static bool has_started = 0;
 
     if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        READY = true;
+        IS_THREAD_READY = true;
         if(!has_started) {
             has_started = 1;
             worker = std::thread(plot_particles_on_screen, xpos, ypos, window);
         }
     }
     else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
-        READY = false;
+        IS_THREAD_READY = false;
     }
 }

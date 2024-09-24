@@ -4,7 +4,7 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
-#include <cstddef>
+#include "grid.hpp"
 #include <glm/vec3.hpp>
 
 // This Abstract Class provides the base functionality a Particle should have.
@@ -15,7 +15,7 @@ public:
     Particle() {}
 
     // Updates the location of the particle based on its movement rules
-    virtual void update(int xpos, int ypos, Particle* (&grid)[550][550]) const = 0;
+    virtual void update(int xpos, int ypos, Grid& grid) const = 0;
 
     virtual glm::vec3 get_color() const;
 
@@ -26,7 +26,7 @@ class SandParticle: public Particle {
 public:
     SandParticle() {};
 
-    void update(const int i, const int j, Particle* (&grid)[550][550]) const override; 
+    void update(const int i, const int j, Grid& grid) const override; 
 
     glm::vec3 get_color() const override;
 };
@@ -35,9 +35,11 @@ class WaterParticle: public Particle {
 public:
     WaterParticle() {};
 
-    void update(int i, int j, Particle* (&grid)[550][550]) const override; 
+    void update(int i, int j, Grid& grid) const override; 
 
     glm::vec3 get_color() const override;
 };
+
+void reset_has_been_drawn_flags(Grid &grid);
 
 #endif
