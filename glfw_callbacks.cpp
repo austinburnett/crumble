@@ -12,7 +12,7 @@
 // Flag that dictates whether the worker thread will run
 static bool IS_THREAD_READY = false;
 
-static std::thread worker;
+static std::thread WORKER_THREAD;
 
 // GLFW callback declarations
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -52,7 +52,7 @@ inline void mouse_button_callback(GLFWwindow* window, int button, int action, in
         IS_THREAD_READY = true;
         if(!has_started) {
             has_started = 1;
-            worker = std::thread(plot_particles_on_screen, xpos, ypos, window);
+            WORKER_THREAD = std::thread(plot_particles_on_screen, xpos, ypos, window);
         }
     }
     else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
