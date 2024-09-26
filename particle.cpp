@@ -1,8 +1,9 @@
 // This module contains implementations for the
 // Particle abstract base class and its derived classes.
 
-#include "includes/particle.hpp"
 #include <random>
+
+#include "includes/particle.hpp"
 
 //------------------------------
 // Particle ABC
@@ -59,7 +60,7 @@ const {
         grid.at(i, j) = NULL;
     }
     // Move particle down and right by one block if nothing is there
-    else if(i < 550 && j > 0 && grid.at(i+1, j-1) == NULL) {
+    else if(i < ROWS-1 && j > 0 && grid.at(i+1, j-1) == NULL) {
         grid.at(i+1, j-1) = grid.at(i, j);
         grid.at(i, j) = NULL;
     }
@@ -69,7 +70,7 @@ const {
         grid.at(i, j) = NULL;
     }
     // Move particle right one block if nothing is there
-    else if(i < 550 && rand_num > 50 && grid.at(i+1, j) == NULL) {
+    else if(i < ROWS-1 && rand_num > 50 && grid.at(i+1, j) == NULL) {
         grid.at(i+1, j) = grid.at(i, j);
         grid.at(i, j) = NULL;
     }

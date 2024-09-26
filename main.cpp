@@ -130,7 +130,7 @@ void plot_particles_on_screen(double xpos, double ypos, GLFWwindow* window) {
         if(IS_THREAD_READY) {
             glfwGetCursorPos(window, &xpos, &ypos);
             if(int(xpos) >= 0 && int(COLUMNS-ypos) >= 0)
-                if(int(xpos) < ROWS && int(ypos) < COLUMNS)
+                if(int(xpos) < ROWS && int(COLUMNS-ypos) < COLUMNS)
                     GRID.at(int(xpos), int(COLUMNS-ypos)) = new WaterParticle();
         }
     }

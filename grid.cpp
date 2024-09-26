@@ -19,7 +19,7 @@ Particle* & Grid::at(const int i, const int j) {
         }
     }
     catch(int error) {
-        std::cerr << "Index out of bounds\n";
+        std::cerr << "Index out of bounds: " << i << ' ' << j << '\n';
         throw error;
     }
 }
