@@ -27,7 +27,7 @@
 #include "glfw_callbacks.cpp"
 
 glm::vec3 screen_to_ndc(double x, double y, const int width, const int height);
-glm::vec3 matrix_to_ndc(int i, int j, const int width, const int height);
+glm::vec3 grid_to_ndc(int i, int j, const int width, const int height);
 
 // Pixel Simulation Buffer
 // [0][0] is the bottom-left corner of the window
@@ -101,7 +101,7 @@ int main() {
                     GRID.at(i, j)->has_been_drawn = true;
                     GRID.at(i, j)->update(i, j, GRID);
 
-                    glm::vec3 translation = matrix_to_ndc(i, j, ROWS, COLUMNS);
+                    glm::vec3 translation = grid_to_ndc(i, j, ROWS, COLUMNS);
                     model = glm::translate(model, translation);
                     ourShader.setMat4("model", model);
                     ourShader.setVec3("particleColor", color);
@@ -124,21 +124,24 @@ int main() {
     return (EXIT_SUCCESS);
 }
 
-// Plots the particle on the screen at the cursor's location
-void plot_particles_on_screen(double xpos, double ypos, GLFWwindow* window) {
+// This plots particles in the grid corresponding to the cursor's location
+// which are in screen coordinates [0, 0], is in the top-left wheras the
+// position [0, 0] in the grid corresponds to the bottom-left corner.
+void plot_particles_in_grid(double xpos, double ypos, GLFWwindow* window) {
     while(SHOULD_THREAD_RUN) {
         if(IS_THREAD_READY) {
             glfwGetCursorPos(window, &xpos, &ypos);
             if(int(xpos) >= 0 && int(COLUMNS-ypos) >= 0)
                 if(int(xpos) < ROWS && int(COLUMNS-ypos) < COLUMNS)
+                    // Flip the cursor's y-position such that it increases upwards.
                     GRID.at(int(xpos), int(COLUMNS-ypos)) = new WaterParticle();
         }
     }
 }
 
-// Convert from screen coordinates to normalized device coordinates
-// Screen coordinates are between [0, 1] and have an inverted y-axis
-// Opengl expects vertices between [-1, 1] with a y-axis pointing up
+// Convert from screen coordinates to normalized device coordinates.
+// Screen coordinates are between [0, 1] and have an inverted y-axis.
+// Opengl expects vertices between [-1, 1] with a y-axis pointing up.
 glm::vec3 screen_to_ndc(double x, double y, const int width, const int height) {
     glm::vec3 point;
     point.x = ((x/width)*2)-1;
@@ -147,14 +150,12 @@ glm::vec3 screen_to_ndc(double x, double y, const int width, const int height) {
     return point;
 }
 
-// Convert from the matrix with the range [0, ROWS] and [0, COLUMNS]
-// corresponding to the rows and columns of the matrix to NDC where
-// Opengl expects vertices between [-1, 1] with a y-axis pointing up
-glm::vec3 matrix_to_ndc(int i, int j, const int width, const int height) {
+// Convert from the grid with the ranges [0, ROWS] and [0, COLUMNS] to ndc.
+// Opengl expects vertices between [-1, 1] and a y-axis pointing up.
+glm::vec3 grid_to_ndc(int i, int j, const int width, const int height) {
     glm::vec3 point;
     point.x = (((float)i/width)*2)-1;
     point.y = 1.0*((((float)j/height)*2)-1);
     point.z = 0.0;
     return point;
 }
-

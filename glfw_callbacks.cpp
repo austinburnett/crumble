@@ -21,7 +21,7 @@ void error_callback(int error, const char* description);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 // Utility function declarations
-void plot_particles_on_screen(double xpos, double ypos, GLFWwindow* window);
+void plot_particles_in_grid(double xpos, double ypos, GLFWwindow* window);
 
 // Whenever the window size changes this callback function executes
 inline void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -52,7 +52,7 @@ inline void mouse_button_callback(GLFWwindow* window, int button, int action, in
         IS_THREAD_READY = true;
         if(!has_started) {
             has_started = 1;
-            WORKER_THREAD = std::thread(plot_particles_on_screen, xpos, ypos, window);
+            WORKER_THREAD = std::thread(plot_particles_in_grid, xpos, ypos, window);
         }
     }
     else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
