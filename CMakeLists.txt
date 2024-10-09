@@ -21,7 +21,7 @@ endif()
 # files. Include parent directory if you want
 # includes that look like <GLFW/glfw3.h>
 #---------------------------------------------
-include_directories(falling-pixels ./includes/ ./includes/glfw3/include/)
+include_directories(falling-pixels ./includes/ ./includes/glfw3/include/ ./includes/imgui/ ./includes/imgui/backends/)
 
 #---------------------------------------------
 #              Find OpenGL
@@ -66,7 +66,13 @@ endif()
 #---------------------------------------------
 #         Create the Executable
 #---------------------------------------------
-add_executable(falling-pixels ../main.cpp ../glad.c ../square.cpp ../particle.cpp ../grid.cpp)
+add_executable(
+falling-pixels
+./main.cpp ./glad.c ./square.cpp ./grid.cpp ./particle.cpp ./glfw_callbacks.cpp
+./includes/imgui/imgui.cpp ./includes/imgui/imgui_draw.cpp ./includes/imgui/imgui_tables.cpp
+./includes/imgui/imgui_widgets.cpp ./includes/imgui/imgui_demo.cpp
+./includes/imgui/backends/imgui_impl_opengl3.cpp ./includes/imgui/backends/imgui_impl_glfw.cpp
+)
 
 #---------------------------------------------
 #             Link the Libraries

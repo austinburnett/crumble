@@ -1,7 +1,7 @@
-// Ensure GLFW doesn't include the OpenGL header
+// Ensure GLFW doesn't include the OpenGL header.
 #define GLFW_INCLUDE_NONE
 
-// Autocomplete works better when using OpenGL headers
+// Autocomplete works better when using OpenGL headers.
 #define DEVELOP true
 
 #if DEVELOP
@@ -17,6 +17,10 @@
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -26,8 +30,17 @@
 #include "includes/grid.hpp"
 #include "glfw_callbacks.cpp"
 
+// Convert from screen coordinates to normalized device coordinates.
+// Screen coordinates are between [0, 1] and have an inverted y-axis.
+// Opengl expects vertices between [-1, 1] with a y-axis pointing up.
 glm::vec3 screen_to_ndc(double x, double y, const int width, const int height);
+
+// Convert from the grid with the ranges [0, ROWS] and [0, COLUMNS] to ndc.
+// Opengl expects vertices between [-1, 1] and a y-axis pointing up.
 glm::vec3 grid_to_ndc(int i, int j, const int width, const int height);
+
+// Displays a menu consisting of different particles types to render.
+void display_particle_options_menu();
 
 // Pixel Simulation Buffer
 // [0][0] is the bottom-left corner of the window
@@ -50,7 +63,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    // GlfW window and openGl context creation
+    // GlfW window and openGl context creation.
     GLFWwindow* window = glfwCreateWindow(ROWS, COLUMNS, "LearnOpenGL", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -59,30 +72,44 @@ int main() {
     }
     glfwMakeContextCurrent(window);
 
-    // Set glfw callbacks
+    // Set glfw callbacks.
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetErrorCallback(error_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
 
-    // Load all OpenGL function pointers with glad
+    // Load the OpenGL function pointers with glad.
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
+    // Setup Dear ImGui context.
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO imgui_io = ImGui::GetIO();
+    imgui_io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    // Setup Dear ImGui Platform/Renderer backends.
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init();
+
+    // Setup the graphics pipeline with the corresonding fragment and vertex shader.
     Shader ourShader("./resources/shader.vs", "./resources/shader.fs");
     Square square;
 
-    double xpos, ypos;
-    int width, height;
-    glm::vec3 point;
-
-    // Render loop
+    // The render loop.
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
         DELTA_TIME = currentFrame - LAST_FRAME;
         LAST_FRAME = currentFrame;
+
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        display_particle_options_menu();
 
         processInput(window);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -91,8 +118,7 @@ int main() {
         ourShader.use();
         glBindVertexArray(square.VAO);
 
-        // Iterate over all pixels on the screen and draw a
-        // particle there if the value in the grid is 1
+        // Render all the particles to the framebuffer.
         for(int i = 0; i < ROWS; ++i) {
             for(int j = 0; j < COLUMNS; ++j) {
                 if(GRID.at(i, j) != NULL && !GRID.at(i, j)->has_been_drawn) {
@@ -110,15 +136,24 @@ int main() {
             }
         }
 
-        // Frame Upkeep
+        // Reset each particle's state so its only updated once per frame.
         reset_has_been_drawn_flags(GRID);
-        glfwSwapBuffers(window);
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwPollEvents();
+        glfwSwapBuffers(window);
     }
 
     // Cleanup
     SHOULD_THREAD_RUN = false;
     WORKER_THREAD.join();
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     glfwDestroyWindow(window);
     glfwTerminate();
     return (EXIT_SUCCESS);
@@ -139,9 +174,6 @@ void plot_particles_in_grid(double xpos, double ypos, GLFWwindow* window) {
     }
 }
 
-// Convert from screen coordinates to normalized device coordinates.
-// Screen coordinates are between [0, 1] and have an inverted y-axis.
-// Opengl expects vertices between [-1, 1] with a y-axis pointing up.
 glm::vec3 screen_to_ndc(double x, double y, const int width, const int height) {
     glm::vec3 point;
     point.x = ((x/width)*2)-1;
@@ -150,12 +182,15 @@ glm::vec3 screen_to_ndc(double x, double y, const int width, const int height) {
     return point;
 }
 
-// Convert from the grid with the ranges [0, ROWS] and [0, COLUMNS] to ndc.
-// Opengl expects vertices between [-1, 1] and a y-axis pointing up.
 glm::vec3 grid_to_ndc(int i, int j, const int width, const int height) {
     glm::vec3 point;
     point.x = (((float)i/width)*2)-1;
     point.y = 1.0*((((float)j/height)*2)-1);
     point.z = 0.0;
     return point;
+}
+
+void display_particle_options_menu() {
+    ImGui::Begin("Particle Choices");
+    ImGui::End();
 }
