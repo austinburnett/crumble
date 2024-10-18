@@ -30,11 +30,6 @@
 #include "includes/grid.hpp"
 #include "glfw_callbacks.cpp"
 
-// Convert from screen coordinates to normalized device coordinates.
-// Screen coordinates are between [0, 1] and have an inverted y-axis.
-// Opengl expects vertices between [-1, 1] with a y-axis pointing up.
-glm::vec3 screen_to_ndc(double x, double y, const int width, const int height);
-
 // Convert from the grid with the ranges [0, ROWS] and [0, COLUMNS] to ndc.
 // Opengl expects vertices between [-1, 1] and a y-axis pointing up.
 glm::vec3 grid_to_ndc(int i, int j, const int width, const int height);
@@ -45,10 +40,6 @@ void display_particle_options_menu();
 // Pixel Simulation Buffer
 // [0][0] is the bottom-left corner of the window
 Grid GRID;
-
-// Deltatime
-float DELTA_TIME = 0.0f; // Time between current and last frame 
-float LAST_FRAME = 0.0f; // Time of last frame
 
 static bool SHOULD_THREAD_RUN = true;
 
@@ -100,15 +91,13 @@ int main() {
 
     // The render loop.
     while (!glfwWindowShouldClose(window)) {
-        float currentFrame = glfwGetTime();
-        DELTA_TIME = currentFrame - LAST_FRAME;
-        LAST_FRAME = currentFrame;
-
-        // Start the Dear ImGui frame
+        // Start the Dear ImGui frame. Calls to
+        // ImGui must be made after ImGui::NewFrame().
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        //ImGui::ShowDemoWindow();
         display_particle_options_menu();
 
         processInput(window);
@@ -160,7 +149,7 @@ int main() {
 }
 
 // This plots particles in the grid corresponding to the cursor's location
-// which are in screen coordinates [0, 0], is in the top-left wheras the
+// which are in screen coordinates [0, 0], is in the top-left whereas the
 // position [0, 0] in the grid corresponds to the bottom-left corner.
 void plot_particles_in_grid(double xpos, double ypos, GLFWwindow* window) {
     while(SHOULD_THREAD_RUN) {
@@ -174,14 +163,6 @@ void plot_particles_in_grid(double xpos, double ypos, GLFWwindow* window) {
     }
 }
 
-glm::vec3 screen_to_ndc(double x, double y, const int width, const int height) {
-    glm::vec3 point;
-    point.x = ((x/width)*2)-1;
-    point.y = -1.0*(((y/height)*2)-1);
-    point.z = 0.0;
-    return point;
-}
-
 glm::vec3 grid_to_ndc(int i, int j, const int width, const int height) {
     glm::vec3 point;
     point.x = (((float)i/width)*2)-1;
@@ -191,6 +172,16 @@ glm::vec3 grid_to_ndc(int i, int j, const int width, const int height) {
 }
 
 void display_particle_options_menu() {
-    ImGui::Begin("Particle Choices");
+    ImGuiWindowFlags imgui_window_flags = 0;
+    bool* p_open = NULL;
+    imgui_window_flags |= ImGuiWindowFlags_NoMove;
+
+    ImGui::Begin("Particle Choices", p_open, imgui_window_flags);
+    
+    static int active_button = 0;
+    ImGui::RadioButton("Water", &active_button, 0);
+    ImGui::RadioButton("Sand", &active_button, 1);
+    ImGui::RadioButton("Wall", &active_button, 2);
+
     ImGui::End();
 }
