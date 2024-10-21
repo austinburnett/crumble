@@ -21,7 +21,7 @@ void error_callback(int error, const char* description);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 // Utility function declarations
-void plot_particles_in_grid(double xpos, double ypos, GLFWwindow* window);
+void plot_particles_in_grid(GLFWwindow* window);
 
 // Whenever the window size changes this callback function executes
 inline void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -41,10 +41,9 @@ inline void error_callback(int error, const char* description) {
 }
 
 // Whenever a mouse button is pressed this callback function executes to
-// append a new position at the location where the left mouse button was pressed
-// so a primitive can be rendered at said position.
+// start or stop the particle-plotting thread depending on the mouse button
+// that was pressed.
 inline void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    double xpos, ypos;
     int width, height;
     static bool has_started = 0;
 
@@ -52,7 +51,7 @@ inline void mouse_button_callback(GLFWwindow* window, int button, int action, in
         IS_THREAD_READY = true;
         if(!has_started) {
             has_started = 1;
-            WORKER_THREAD = std::thread(plot_particles_in_grid, xpos, ypos, window);
+            WORKER_THREAD = std::thread(plot_particles_in_grid, window);
         }
     }
     else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {

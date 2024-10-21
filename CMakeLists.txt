@@ -68,7 +68,7 @@ endif()
 #---------------------------------------------
 add_executable(
 falling-pixels
-./main.cpp ./glad.c ./square.cpp ./grid.cpp ./particle.cpp ./glfw_callbacks.cpp
+./main.cpp ./glad.c ./square.cpp ./grid.cpp ./particle.cpp ./glfw_callbacks.cpp ./particle_system.cpp
 ./includes/imgui/imgui.cpp ./includes/imgui/imgui_draw.cpp ./includes/imgui/imgui_tables.cpp
 ./includes/imgui/imgui_widgets.cpp ./includes/imgui/imgui_demo.cpp
 ./includes/imgui/backends/imgui_impl_opengl3.cpp ./includes/imgui/backends/imgui_impl_glfw.cpp
