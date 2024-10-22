@@ -2,6 +2,8 @@
 
 extern Grid GRID;
 
+int ParticleSystem::active_particle = SandParticle::id;
+
 ParticleSystem::ParticleSystem() {
     // Initialize and configure glfw
     glfwInit();
@@ -64,10 +66,12 @@ void display_particle_options_menu() {
 
     ImGui::Begin("Particle Choices", p_open, imgui_window_flags);
     
-    static int active_button = 0;
-    ImGui::RadioButton("Water", &active_button, 0);
-    ImGui::RadioButton("Sand", &active_button, 1);
-    ImGui::RadioButton("Wall", &active_button, 2);
+    ImGui::RadioButton(SandParticle::name.c_str(),
+                       &ParticleSystem::active_particle,
+                       SandParticle::id);
+    ImGui::RadioButton(WaterParticle::name.c_str(),
+                       &ParticleSystem::active_particle,
+                       WaterParticle::id);
 
     ImGui::End();
 }
@@ -87,9 +91,20 @@ void plot_particles_in_grid(GLFWwindow* window) {
         if(IS_THREAD_READY) {
             glfwGetCursorPos(window, &xpos, &ypos);
             if(int(xpos) >= 0 && int(COLUMNS-ypos) >= 0)
-                if(int(xpos) < ROWS && int(COLUMNS-ypos) < COLUMNS)
+                if(int(xpos) < ROWS && int(COLUMNS-ypos) < COLUMNS) {
+                    Particle* particle;
+                    switch(ParticleSystem::active_particle) {
+                        case(WaterParticle::id):
+                            particle = new WaterParticle();
+                            break;
+                        case(SandParticle::id):
+                            particle = new SandParticle();
+                            break;
+                    }
                     // Flip the cursor's y-position such that it increases upwards.
-                    GRID.at(int(xpos), int(COLUMNS-ypos)) = new WaterParticle();
+                    GRID.at(int(xpos), int(COLUMNS-ypos)) = particle;
+                    particle = nullptr;
+                }
         }
     }
 }

@@ -6,7 +6,7 @@
 #include "includes/particle.hpp"
 
 //------------------------------
-// Particle ABC
+// Particle Abstract Base Class
 //------------------------------
 glm::vec3 Particle::get_color() const {
     return glm::vec3(1.0f, 1.0f, 1.0f); 
@@ -15,20 +15,22 @@ glm::vec3 Particle::get_color() const {
 //------------------------------
 // Sand Particle
 //------------------------------
+const std::string SandParticle::name = "Sand";
+
 void SandParticle::update(const int i, const int j, Grid& grid)
 const {
     // Move particle down one block if nothing is there
-    if(grid.at(i, j-1) == NULL) {
+    if(j > 0 && grid.at(i, j-1) == NULL) {
         grid.at(i, j-1) = grid.at(i, j);
         grid.at(i, j) = NULL;
     }
     // Move particle down and left by one block if nothing is there
-    else if(grid.at(i-1, j-1) == NULL) {
+    else if(j > 0 && i > 0 && grid.at(i-1, j-1) == NULL) {
         grid.at(i-1, j-1) = grid.at(i, j);
         grid.at(i, j) = NULL;
     }
     // Move particle down and right by one block if nothing is there
-    else if(grid.at(i+1, j-1) == NULL) {
+    else if(j > 0 && i < COLUMNS-1 && grid.at(i+1, j-1) == NULL) {
         grid.at(i+1, j-1) = grid.at(i, j);
         grid.at(i, j) = NULL;
     }
@@ -41,6 +43,8 @@ glm::vec3 SandParticle::get_color() const {
 //------------------------------
 // Water Particle
 //------------------------------
+const std::string WaterParticle::name = "Water";
+
 void WaterParticle::update(const int i, const int j, Grid& grid)
 const {
     // Generate a random number between [1, 100]

@@ -45,7 +45,9 @@ public:
 
     ~ParticleSystem();
 
-GLFWwindow* window;
+    GLFWwindow* window;
+
+    static int active_particle;
 };
 
 //-------------------
