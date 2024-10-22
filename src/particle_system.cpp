@@ -1,4 +1,4 @@
-#include "includes/particle_system.hpp"
+#include "particle_system.hpp"
 
 extern Grid GRID;
 

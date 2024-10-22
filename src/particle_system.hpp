@@ -28,7 +28,7 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 
-#include "square.hpp"
+#include "reuse/square.hpp"
 #include "particle.hpp"
 #include "grid.hpp"
 #include "../glfw_callbacks.cpp"

@@ -1,4 +1,4 @@
-#include "./includes/square.hpp"
+#include "square.hpp"
 
 // Constructor
 Square::Square() {

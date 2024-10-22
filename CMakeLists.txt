@@ -21,7 +21,7 @@ endif()
 # files. Include parent directory if you want
 # includes that look like <GLFW/glfw3.h>
 #---------------------------------------------
-include_directories(falling-pixels ./includes/ ./includes/glfw3/include/ ./includes/imgui/ ./includes/imgui/backends/)
+include_directories(falling-pixels ./src ./src/glfw3/include/ ./src/imgui/ ./src/imgui/backends/)
 
 #---------------------------------------------
 #              Find OpenGL
@@ -68,10 +68,10 @@ endif()
 #---------------------------------------------
 add_executable(
 falling-pixels
-./main.cpp ./glad.c ./square.cpp ./grid.cpp ./particle.cpp ./glfw_callbacks.cpp ./particle_system.cpp
-./includes/imgui/imgui.cpp ./includes/imgui/imgui_draw.cpp ./includes/imgui/imgui_tables.cpp
-./includes/imgui/imgui_widgets.cpp ./includes/imgui/imgui_demo.cpp
-./includes/imgui/backends/imgui_impl_opengl3.cpp ./includes/imgui/backends/imgui_impl_glfw.cpp
+./src/main.cpp 
+./src/glad/glad.c ./src/reuse/square.cpp ./src/grid.cpp ./src/particle.cpp ./src/glfw_callbacks.cpp ./src/particle_system.cpp
+./src/imgui/imgui.cpp ./src/imgui/imgui_draw.cpp ./src/imgui/imgui_tables.cpp ./src/imgui/imgui_widgets.cpp ./src/imgui/imgui_demo.cpp
+./src/imgui/backends/imgui_impl_opengl3.cpp ./src/imgui/backends/imgui_impl_glfw.cpp
 )
 
 #---------------------------------------------

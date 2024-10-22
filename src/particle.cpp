@@ -3,7 +3,7 @@
 
 #include <random>
 
-#include "includes/particle.hpp"
+#include "particle.hpp"
 
 //------------------------------
 // Particle Abstract Base Class

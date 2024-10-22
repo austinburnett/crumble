@@ -1,5 +1,6 @@
-#include "includes/grid.hpp"
 #include <iostream>
+
+#include "grid.hpp"
 
 Grid::Grid() {
     for(int i = 0; i < ROWS; ++i) {
