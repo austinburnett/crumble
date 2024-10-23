@@ -1,6 +1,3 @@
-// This module contains Class definitions for the
-// Particle abstract base class and its derived classes.
-
 #ifndef PARTICLE_H
 #define PARTICLE_H
 

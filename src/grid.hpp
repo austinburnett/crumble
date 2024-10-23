@@ -1,5 +1,3 @@
-// This module consist of the Grid class definition
-
 #ifndef GRID_H
 #define GRID_H
 

@@ -1,7 +1,3 @@
-// A header file that contains the declaractions
-// for the ParticleSystem class and its related
-// utility functions.
-
 #ifndef PARTICLE_SYSTEM_H
 #define PARTICLE_SYSTEM_H
 

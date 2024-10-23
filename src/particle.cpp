@@ -1,6 +1,3 @@
-// This module contains implementations for the
-// Particle abstract base class and its derived classes.
-
 #include <random>
 
 #include "particle.hpp"

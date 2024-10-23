@@ -28,7 +28,7 @@ int main() {
     ParticleSystem particle_system;
 
     // Setup the graphics pipeline with the corresonding fragment and vertex shader.
-    Shader ourShader("./resources/shader.vs", "./resources/shader.fs");
+    Shader ourShader("../resources/shader.vs", "../resources/shader.fs");
     Square square;
 
     // The render loop.

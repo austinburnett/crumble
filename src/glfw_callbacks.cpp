@@ -1,6 +1,3 @@
-// This module contains implementations for any glfw callbacks that are set in main.cpp
-// as well as any implementation for any related functions.
-
 #include <iostream>
 #include <thread>
 
