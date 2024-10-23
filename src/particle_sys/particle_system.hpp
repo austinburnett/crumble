@@ -1,19 +1,6 @@
 #ifndef PARTICLE_SYSTEM_H
 #define PARTICLE_SYSTEM_H
 
-// Ensure GLFW doesn't include the OpenGL header.
-#define GLFW_INCLUDE_NONE
-
-// Autocomplete works better when using OpenGL headers.
-#define DEVELOP true
-
-#if DEVELOP
-#include <OpenGL/OpenGL.h>
-#else 
-#include <glad/glad.h>
-#endif
-
-#include <iostream>
 #include <csignal>
 
 #include <GLFW/glfw3.h>
@@ -24,9 +11,6 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 
-#include "reuse/square.hpp"
-#include "particle.hpp"
-#include "grid.hpp"
 #include "../glfw_callbacks.cpp"
 
 static bool SHOULD_THREAD_RUN = true;

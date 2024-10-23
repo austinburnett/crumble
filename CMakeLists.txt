@@ -69,7 +69,7 @@ endif()
 add_executable(
 falling-pixels
 ./src/main.cpp 
-./src/glad/glad.c ./src/reuse/square.cpp ./src/grid.cpp ./src/particle.cpp ./src/glfw_callbacks.cpp ./src/particle_system.cpp
+./src/glad/glad.c ./src/reuse/square.cpp ./src/particle_sys/grid.cpp ./src/particle_sys/particle.cpp ./src/glfw_callbacks.cpp ./src/particle_sys/particle_system.cpp
 ./src/imgui/imgui.cpp ./src/imgui/imgui_draw.cpp ./src/imgui/imgui_tables.cpp ./src/imgui/imgui_widgets.cpp ./src/imgui/imgui_demo.cpp
 ./src/imgui/backends/imgui_impl_opengl3.cpp ./src/imgui/backends/imgui_impl_glfw.cpp
 )

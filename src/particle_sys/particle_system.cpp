@@ -1,4 +1,7 @@
+#include "glad/glad.h"
 #include "particle_system.hpp"
+#include "grid.hpp"
+#include "particle.hpp"
 
 extern Grid GRID;
 

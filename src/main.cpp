@@ -14,10 +14,10 @@
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-#include "grid.hpp"
-#include "particle.hpp"
-#include "particle_system.hpp"
 #include "reuse/shader.hpp"
+#include "particle_sys/grid.hpp"
+#include "particle_sys/particle.hpp"
+#include "particle_sys/particle_system.hpp"
 #include "reuse/square.hpp"
 
 // Pixel Simulation Buffer
