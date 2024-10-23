@@ -75,6 +75,9 @@ void display_particle_options_menu() {
     ImGui::RadioButton(WaterParticle::name.c_str(),
                        &ParticleSystem::active_particle,
                        WaterParticle::id);
+    ImGui::RadioButton(WallParticle::name.c_str(),
+                       &ParticleSystem::active_particle,
+                       WallParticle::id);
 
     ImGui::End();
 }
@@ -102,6 +105,9 @@ void plot_particles_in_grid(GLFWwindow* window) {
                             break;
                         case(SandParticle::id):
                             particle = new SandParticle();
+                            break;
+                        case(WallParticle::id):
+                            particle = new WallParticle();
                             break;
                     }
                     // Flip the cursor's y-position such that it increases upwards.

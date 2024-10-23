@@ -81,6 +81,21 @@ glm::vec3 WaterParticle::get_color() const {
     return glm::vec3(0.0f, 0.0f, 1.0f); 
 }
 
+//------------------------------
+// Wall Particle
+//------------------------------
+const std::string WallParticle::name = "Wall";
+
+void WallParticle::update(const int i, const int j, Grid& grid)
+const {
+    // The WallParticle doesn't move.
+}
+
+glm::vec3 WallParticle::get_color() const {
+    return glm::vec3(0.2f, 0.2f, 0.2f); 
+}
+
+
 //---------------------
 // Particle Class Utilities
 //---------------------

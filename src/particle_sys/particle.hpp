@@ -46,6 +46,18 @@ public:
     const static std::string name;
 };
 
+class WallParticle: public Particle {
+public:
+    WallParticle() = default;
+
+    void update(int i, int j, Grid& grid) const override; 
+
+    glm::vec3 get_color() const override;
+
+    constexpr static int id = 2;
+    const static std::string name;
+};
+
 void reset_has_been_drawn_flags(Grid &grid);
 
 #endif
