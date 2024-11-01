@@ -1,6 +1,7 @@
 #include "glad/glad.h"
 #include "particle_system.hpp"
 #include "grid.hpp"
+#include "imgui.h"
 #include "particle.hpp"
 
 extern Grid GRID;
@@ -62,12 +63,14 @@ ParticleSystem::~ParticleSystem() {
     glfwTerminate();
 }
 
-void display_particle_options_menu() {
+void display_particle_options_menu(double frame_time) {
     ImGuiWindowFlags imgui_window_flags = 0;
     bool* p_open = NULL;
     imgui_window_flags |= ImGuiWindowFlags_NoMove;
 
     ImGui::Begin("Particle Choices", p_open, imgui_window_flags);
+
+    ImGui::Text("Frame time: %f", frame_time);
     
     ImGui::RadioButton(SandParticle::name.c_str(),
                        &ParticleSystem::active_particle,
@@ -117,3 +120,5 @@ void plot_particles_in_grid(GLFWwindow* window) {
         }
     }
 }
+
+// create function for determining frame rate

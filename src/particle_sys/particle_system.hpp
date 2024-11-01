@@ -36,7 +36,7 @@ public:
 
 // Displays a menu consisting of different particles types to render.
 //void display_particle_options_menu();
-void display_particle_options_menu();
+void display_particle_options_menu(double frame_time);
 
 // Convert from the grid with the ranges [0, ROWS] and [0, COLUMNS] to ndc.
 // Opengl expects vertices between [-1, 1] and a y-axis pointing up.
