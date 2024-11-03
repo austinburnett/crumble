@@ -3,6 +3,7 @@
 
 #include <csignal>
 
+#include "../reuse/shader.hpp"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -24,6 +25,8 @@ public:
     ParticleSystem();
 
     ~ParticleSystem();
+
+    void draw(const unsigned int VAO, Shader& shader);
 
     GLFWwindow* window;
 

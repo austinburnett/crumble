@@ -63,6 +63,35 @@ ParticleSystem::~ParticleSystem() {
     glfwTerminate();
 }
 
+void ParticleSystem::draw(unsigned int VAO, Shader& shader) {
+    glBindVertexArray(VAO);
+    shader.use();
+
+    // Render all the particles to the framebuffer.
+    for(int i = 0; i < ROWS; ++i) {
+        for(int j = 0; j < COLUMNS; ++j) {
+            if(GRID.at(i, j) != NULL && !GRID.at(i, j)->has_been_drawn) {
+                glm::mat4 model(1.0f);
+                glm::vec3 color = GRID.at(i, j)->get_color();
+                GRID.at(i, j)->has_been_drawn = true;
+                GRID.at(i, j)->update(i, j, GRID);
+
+                glm::vec3 translation = grid_to_ndc(i, j, ROWS, COLUMNS);
+                model = glm::translate(model, translation);
+                shader.setMat4("model", model);
+                shader.setVec3("particleColor", color);
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            }
+        }
+    }
+
+    // Reset each particle's state so its only updated once per frame.
+    reset_has_been_drawn_flags(GRID);
+
+    // Unbind the currently bound vertex array.
+    glBindVertexArray(0);
+}
+
 void display_particle_options_menu(double frame_time) {
     ImGuiWindowFlags imgui_window_flags = 0;
     bool* p_open = NULL;

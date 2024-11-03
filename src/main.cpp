@@ -48,38 +48,16 @@ int main() {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT); 
 
-        ourShader.use();
-        glBindVertexArray(square.VAO);
-
-        // Render all the particles to the framebuffer.
-        for(int i = 0; i < ROWS; ++i) {
-            for(int j = 0; j < COLUMNS; ++j) {
-                if(GRID.at(i, j) != NULL && !GRID.at(i, j)->has_been_drawn) {
-                    glm::mat4 model(1.0f);
-                    glm::vec3 color = GRID.at(i, j)->get_color();
-                    GRID.at(i, j)->has_been_drawn = true;
-                    GRID.at(i, j)->update(i, j, GRID);
-
-                    glm::vec3 translation = grid_to_ndc(i, j, ROWS, COLUMNS);
-                    model = glm::translate(model, translation);
-                    ourShader.setMat4("model", model);
-                    ourShader.setVec3("particleColor", color);
-                    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-                }
-            }
-        }
-
-        // Reset each particle's state so its only updated once per frame.
-        reset_has_been_drawn_flags(GRID);
+        particle_system.draw(square.VAO, ourShader);
 
         glfwPollEvents();
 
         // Stop measuring the elapsed time between consecutive glfwSwapBuffers returns.
         frame_timer.stop();
 
-        // These ImGui functions must be called before swapping buffers.
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(particle_system.window);
 
         // Start measuring the elapsed time between consecutive glfwSwapBuffers returns.
