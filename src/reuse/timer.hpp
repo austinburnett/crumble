@@ -18,7 +18,7 @@ public:
     // Returns the elapsed time between calls to stop and start.
     std::chrono::duration<double> get_elapsed_time();
 
-    // Returns the previous recorded elapsed time between calls to stop and start.
+    // Returns the previously recorded elapsed time.
     std::chrono::duration<double> get_prev_elapsed_time();
 
 private:

@@ -80,7 +80,8 @@ void ParticleSystem::draw(unsigned int VAO, Shader& shader) {
                 model = glm::translate(model, translation);
                 shader.setMat4("model", model);
                 shader.setVec3("particleColor", color);
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                glDrawArrays(GL_POINTS, 0, 1);
             }
         }
     }

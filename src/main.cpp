@@ -31,7 +31,7 @@ int main() {
 
     // Setup the graphics pipeline with the corresonding fragment and vertex shader.
     Shader ourShader("../resources/shader.vs", "../resources/shader.fs");
-    Square square;
+    Point point;
 
     // The render loop.
     while (!glfwWindowShouldClose(particle_system.window)) {
@@ -48,7 +48,7 @@ int main() {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT); 
 
-        particle_system.draw(square.VAO, ourShader);
+        particle_system.draw(point.VAO, ourShader);
 
         glfwPollEvents();
 

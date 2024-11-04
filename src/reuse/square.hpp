@@ -16,4 +16,13 @@ public:
 private:
 };
 
+class Point {
+public:
+    Point();
+
+    ~Point();
+
+    unsigned int VBO, VAO;
+};
+
 #endif // !SQUARE_H

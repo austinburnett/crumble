@@ -38,3 +38,34 @@ Square::~Square() {
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
 }
+
+Point::Point() {
+    float vertices[] = {
+         0.0f, 0.0f, 1.0f
+    };
+
+    glPointSize(2);
+
+    glGenBuffers(1, &VBO);
+    glGenVertexArrays(1, &VAO);
+
+    // Set the newly generated objects as objects currently in use.
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    // Create a new data store for the current buffer object.
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
+
+    // The vertex buffer object can be deleted after the VAO is unbound
+    // since the VAO will maintain a reference to the VBO.
+    glDeleteBuffers(1, &VBO);
+}
+
+Point::~Point() {
+    glDeleteVertexArrays(1, &VAO);
+}
