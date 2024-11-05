@@ -32,9 +32,14 @@ public:
 
     static int active_particle;
 
+private:
+    // Creates multiple instanced arrays with the size specified.
+    void gen_instanced_arrays_of_size(int instance_count);
+
     // The size of this array is the max particle limit for the grid size
     // 550 x 550. This buffer stores the translations for each particle.
     glm::vec3 translations_[302500];
+    glm::vec3 colors_[302500];
 };
 
 //-------------------

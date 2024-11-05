@@ -25,10 +25,14 @@ Particle* & Grid::at(const int i, const int j) {
     }
 }
 
-int Grid::get_num_rows() {
-    return ROWS; 
-}
+int Grid::count() {
+    int count = 0;
 
-int Grid::get_num_cols() {
-    return COLUMNS; 
+    for(int i = 0; i < ROWS; ++i) {
+        for(int j = 0; j < COLUMNS; ++j) {
+            if(grid[i][j] != NULL)
+                count++;
+        }
+    }
+    return count;
 }

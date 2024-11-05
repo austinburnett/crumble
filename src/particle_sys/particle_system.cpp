@@ -80,29 +80,13 @@ void ParticleSystem::draw(unsigned int VAO, Shader& shader) {
                 GRID.at(i, j)->update(i, j, GRID);
 
                 glm::vec3 translation = grid_to_ndc(i, j, ROWS, COLUMNS);
-                shader.setVec3("particleColor", color);
                 translations_[instance_count] = translation;
-                shader.setVec3(
-                    "translations[" + std::to_string(instance_count) + "]",
-                    translations_[instance_count]
-                );
+                colors_[instance_count] = color;
                 ++instance_count;
             }
         }
     }
-
-    // Construct the instanced buffer object.
-    unsigned int instance_vbo;
-    glGenBuffers(1, &instance_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, instance_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*instance_count,
-                 &translations_[0], GL_STATIC_DRAW);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
-                          3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glVertexAttribDivisor(1, 1);
+    gen_instanced_arrays_of_size(instance_count);
 
     if(instance_count > 0)
         glDrawArraysInstanced(GL_POINTS, 0, 1, instance_count);
@@ -110,8 +94,30 @@ void ParticleSystem::draw(unsigned int VAO, Shader& shader) {
     // Reset each particle's state so its only updated once per frame.
     reset_has_been_drawn_flags(GRID);
 
-    // Unbind the currently bound vertex array.
     glBindVertexArray(0);
+}
+
+void ParticleSystem::gen_instanced_arrays_of_size(int instance_count) {
+    unsigned int instance_vbos[2];
+    glGenBuffers(2, instance_vbos);
+
+    // The translations instanced array.
+    glBindBuffer(GL_ARRAY_BUFFER, instance_vbos[0]);
+    glBufferData(GL_ARRAY_BUFFER, instance_count * sizeof(glm::vec3),
+                 &translations_[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribDivisor(1, 1);
+
+    // The colors instanced array.
+    glBindBuffer(GL_ARRAY_BUFFER, instance_vbos[1]);
+    glBufferData(GL_ARRAY_BUFFER, instance_count * sizeof(glm::vec3),
+                 &colors_[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(2);
+    glVertexAttribDivisor(2, 1);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void display_particle_options_menu(double frame_time) {
@@ -171,5 +177,3 @@ void plot_particles_in_grid(GLFWwindow* window) {
         }
     }
 }
-
-// create function for determining frame rate

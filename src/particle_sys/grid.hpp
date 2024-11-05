@@ -16,13 +16,15 @@ private:
 
 public:
     Grid();
+
     Grid(const Grid& other) = delete;
+
     Grid operator=(const Grid& other) = delete;
 
     Particle* & at(const int i, const int j);
 
-    int get_num_rows();
-    int get_num_cols();
+    // Returns the number of items in the grid.
+    int count();
 };
 
 // This should be called once per frame to ensure
