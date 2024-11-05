@@ -3,6 +3,7 @@
 #include "grid.hpp"
 #include "imgui.h"
 #include "particle.hpp"
+#include <OpenGL/gl.h>
 
 extern Grid GRID;
 
@@ -67,6 +68,8 @@ void ParticleSystem::draw(unsigned int VAO, Shader& shader) {
     glBindVertexArray(VAO);
     shader.use();
 
+    int instance_count = 0;
+
     // Render all the particles to the framebuffer.
     for(int i = 0; i < ROWS; ++i) {
         for(int j = 0; j < COLUMNS; ++j) {
@@ -77,14 +80,32 @@ void ParticleSystem::draw(unsigned int VAO, Shader& shader) {
                 GRID.at(i, j)->update(i, j, GRID);
 
                 glm::vec3 translation = grid_to_ndc(i, j, ROWS, COLUMNS);
-                model = glm::translate(model, translation);
-                shader.setMat4("model", model);
                 shader.setVec3("particleColor", color);
-                //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-                glDrawArrays(GL_POINTS, 0, 1);
+                translations_[instance_count] = translation;
+                shader.setVec3(
+                    "translations[" + std::to_string(instance_count) + "]",
+                    translations_[instance_count]
+                );
+                ++instance_count;
             }
         }
     }
+
+    // Construct the instanced buffer object.
+    unsigned int instance_vbo;
+    glGenBuffers(1, &instance_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, instance_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*instance_count,
+                 &translations_[0], GL_STATIC_DRAW);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
+                          3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribDivisor(1, 1);
+
+    if(instance_count > 0)
+        glDrawArraysInstanced(GL_POINTS, 0, 1, instance_count);
 
     // Reset each particle's state so its only updated once per frame.
     reset_has_been_drawn_flags(GRID);

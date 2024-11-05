@@ -31,6 +31,10 @@ public:
     GLFWwindow* window;
 
     static int active_particle;
+
+    // The size of this array is the max particle limit for the grid size
+    // 550 x 550. This buffer stores the translations for each particle.
+    glm::vec3 translations_[302500];
 };
 
 //-------------------
