@@ -2,12 +2,6 @@
 
 #include "particle.hpp"
 
-//------------------------------
-// Particle Abstract Base Class
-//------------------------------
-glm::vec3 Particle::get_color() const {
-    return glm::vec3(1.0f, 1.0f, 1.0f); 
-}
 
 //------------------------------
 // Sand Particle

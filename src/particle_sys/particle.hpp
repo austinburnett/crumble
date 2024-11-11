@@ -2,9 +2,9 @@
 #define PARTICLE_H
 
 #include <string>
+#include <glm/vec3.hpp>
 
 #include "grid.hpp"
-#include <glm/vec3.hpp>
 
 
 // This Abstract Class provides the base functionality a Particle should have.
@@ -14,11 +14,12 @@ class Particle {
 public:
     Particle() = default;
 
-    // Updates the location of the particle based on its movement rules
-    virtual void update(int xpos, int ypos, Grid& grid) const = 0;
+    // Updates the location of the particle based on its movement rules.
+    virtual void update(const int i, const int j, Grid& grid) const = 0; 
 
-    virtual glm::vec3 get_color() const;
+    virtual glm::vec3 get_color() const = 0;
 
+public:
     bool has_been_drawn = false;
 };
 
@@ -30,6 +31,8 @@ public:
 
     glm::vec3 get_color() const override;
 
+public:
+    // Both static members must be present on every Particle type.
     constexpr static int id = 0;
     const static std::string name;
 };
@@ -38,10 +41,12 @@ class WaterParticle: public Particle {
 public:
     WaterParticle() = default;
 
-    void update(int i, int j, Grid& grid) const override; 
+    void update(const int i, const int j, Grid& grid) const override; 
 
     glm::vec3 get_color() const override;
 
+public:
+    // Both static members must be present on every Particle type.
     constexpr static int id = 1;
     const static std::string name;
 };
@@ -50,10 +55,12 @@ class WallParticle: public Particle {
 public:
     WallParticle() = default;
 
-    void update(int i, int j, Grid& grid) const override; 
+    void update(const int i, const int j, Grid& grid) const override; 
 
     glm::vec3 get_color() const override;
 
+public:
+    // Both static members must be present on every Particle type.
     constexpr static int id = 2;
     const static std::string name;
 };
