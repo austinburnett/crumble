@@ -25,7 +25,7 @@ Particle* & Grid::at(const int i, const int j) {
     }
 }
 
-int Grid::count() {
+int Grid::count() const {
     int count = 0;
 
     for(int i = 0; i < ROWS; ++i) {
@@ -35,4 +35,18 @@ int Grid::count() {
         }
     }
     return count;
+}
+
+bool Grid::is_cell_empty(const int i, const int j) const {
+    if(grid[i][j] == NULL) {
+        return true;
+    }
+    return false;
+}
+
+
+void Grid::swap(const int i1, const int j1, const int i2, const int j2) {
+    Particle* temp = this->at(i2, j2);
+    this->at(i2, j2) = this->at(i1, j1);
+    this->at(i1, j1) = temp;
 }

@@ -16,7 +16,6 @@
 
 #include "reuse/shader.hpp"
 #include "particle_sys/grid.hpp"
-#include "particle_sys/particle.hpp"
 #include "particle_sys/particle_system.hpp"
 #include "reuse/square.hpp"
 #include "reuse/timer.hpp"

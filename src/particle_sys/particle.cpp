@@ -11,19 +11,16 @@ const std::string SandParticle::name = "Sand";
 void SandParticle::update(const int i, const int j, Grid& grid)
 const {
     // Move particle down one block if nothing is there
-    if(j > 0 && grid.at(i, j-1) == NULL) {
-        grid.at(i, j-1) = grid.at(i, j);
-        grid.at(i, j) = NULL;
+    if(j > 0 && grid.is_cell_empty(i, j-1)) {
+        grid.swap(i, j, i, j - 1);
     }
     // Move particle down and left by one block if nothing is there
-    else if(j > 0 && i > 0 && grid.at(i-1, j-1) == NULL) {
-        grid.at(i-1, j-1) = grid.at(i, j);
-        grid.at(i, j) = NULL;
+    else if(j > 0 && i > 0 && grid.is_cell_empty(i-1, j-1)) {
+        grid.swap(i, j, i - 1, j - 1);
     }
     // Move particle down and right by one block if nothing is there
-    else if(j > 0 && i < COLUMNS-1 && grid.at(i+1, j-1) == NULL) {
-        grid.at(i+1, j-1) = grid.at(i, j);
-        grid.at(i, j) = NULL;
+    else if(j > 0 && i < COLUMNS-1 && grid.is_cell_empty(i+1, j-1)) {
+        grid.swap(i, j, i + 1, j - 1);
     }
 }
 
@@ -38,36 +35,31 @@ const std::string WaterParticle::name = "Water";
 
 void WaterParticle::update(const int i, const int j, Grid& grid)
 const {
-    // Generate a random number between [1, 100]
+    // Generate a random number between [1, 10]
     std::random_device rand_device_seed;
     static std::mt19937 rand_generator(rand_device_seed());
-    std::uniform_int_distribution<std::mt19937::result_type> distrib_100(1,100);
-    int rand_num = distrib_100(rand_generator);
+    std::uniform_int_distribution<std::mt19937::result_type> distrib_10(1,10);
+    int direction_factor = distrib_10(rand_generator);
 
     // Move particle down one block if nothing is there
-    if(j > 0 && grid.at(i, j-1) == NULL) {
-        grid.at(i, j-1) = grid.at(i, j);
-        grid.at(i, j) = NULL;
+    if(j > 0 && grid.is_cell_empty(i, j-1)) {
+        grid.swap(i, j, i, j - 1);
     }
     // Move particle down and left by one block if nothing is there
-    else if(i > 0 && j > 0 && grid.at(i-1, j-1) == NULL) {
-        grid.at(i-1, j-1) = grid.at(i, j);
-        grid.at(i, j) = NULL;
+    else if(i > 0 && j > 0 && grid.is_cell_empty(i-1, j-1)) {
+        grid.swap(i, j, i-1, j-1);
     }
     // Move particle down and right by one block if nothing is there
-    else if(i < ROWS-1 && j > 0 && grid.at(i+1, j-1) == NULL) {
-        grid.at(i+1, j-1) = grid.at(i, j);
-        grid.at(i, j) = NULL;
+    else if(i < ROWS-1 && j > 0 && grid.is_cell_empty(i+1, j-1)) {
+        grid.swap(i, j, i+1, j-1);
     }
     // Move particle left one block if nothing is there
-    else if(i > 0 && rand_num < 50 && grid.at(i-1, j) == NULL) {
-        grid.at(i-1, j) = grid.at(i, j);
-        grid.at(i, j) = NULL;
+    else if(i > 0 && grid.is_cell_empty(i-1, j) && direction_factor <= 5) {
+        grid.swap(i, j, i - 1, j);
     }
     // Move particle right one block if nothing is there
-    else if(i < ROWS-1 && rand_num > 50 && grid.at(i+1, j) == NULL) {
-        grid.at(i+1, j) = grid.at(i, j);
-        grid.at(i, j) = NULL;
+    else if(i < ROWS-1 && grid.is_cell_empty(i+1, j) && direction_factor > 5) {
+        grid.swap(i, j, i+1, j);
     }
 }
 
@@ -86,9 +78,75 @@ const {
 }
 
 glm::vec3 WallParticle::get_color() const {
-    return glm::vec3(0.2f, 0.2f, 0.2f); 
+    return glm::vec3(0.1f, 0.1f, 0.1f); 
 }
 
+//------------------------------
+// Smoke Particle
+//------------------------------
+const std::string SmokeParticle::name = "Smoke";
+
+void SmokeParticle::update(const int i, const int j, Grid& grid)
+const {
+    // Generate a random number between [1, 10]
+    std::random_device rand_device_seed;
+    static std::mt19937 rand_generator(rand_device_seed());
+    std::uniform_int_distribution<std::mt19937::result_type> distrib_10(1,10);
+    int direction_factor = distrib_10(rand_generator);
+
+    // Move particle up one block if nothing is there.
+    if(j < COLUMNS-1 && grid.is_cell_empty(i, j+1)) {
+        grid.swap(i, j, i, j + 1);
+    }
+    // Move particle up and left by one block if nothing is there
+    else if(i > 0 && j < COLUMNS-1 && grid.is_cell_empty(i-1, j+1)) {
+        grid.swap(i, j, i - 1, j + 1);
+    }
+    // Move particle up and right by one block if nothing is there
+    else if(i < ROWS-1 && j < COLUMNS-1 && grid.is_cell_empty(i+1, j+1)) {
+        grid.swap(i, j, i + 1, j + 1);
+    }
+    // Move particle left one block if nothing is there
+    else if(i > 0 && grid.is_cell_empty(i-1, j) && direction_factor <= 5) {
+        grid.swap(i, j, i - 1, j);
+    }
+    // Move particle right one block if nothing is there
+    else if(i < ROWS-1 && grid.is_cell_empty(i+1, j) && direction_factor > 5) {
+        grid.swap(i, j, i + 1, j);
+    }
+}
+
+glm::vec3 SmokeParticle::get_color() const {
+    return glm::vec3(0.5f, 0.5f, 0.5f); 
+}
+
+//------------------------------
+// Wood Particle
+//------------------------------
+const std::string WoodParticle::name = "Wood";
+
+void WoodParticle::update(const int i, const int j, Grid& grid)
+const {
+    // The WoodParticle doesn't move.
+}
+
+glm::vec3 WoodParticle::get_color() const {
+    return glm::vec3(0.59f, 0.29f, 0.0f); 
+}
+
+//------------------------------
+// Fire Particle
+//------------------------------
+const std::string FireParticle::name = "Fire";
+
+void FireParticle::update(const int i, const int j, Grid& grid)
+const {
+    // The FireParticle doesn't move.
+}
+
+glm::vec3 FireParticle::get_color() const {
+    return glm::vec3(1.00f, 0.0f, 0.0f); 
+}
 
 //---------------------
 // Particle Class Utilities

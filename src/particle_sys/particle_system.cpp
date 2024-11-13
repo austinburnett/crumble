@@ -138,6 +138,12 @@ void display_particle_options_menu(double frame_time) {
     ImGui::RadioButton(WallParticle::name.c_str(),
                        &ParticleSystem::active_particle,
                        WallParticle::id);
+    ImGui::RadioButton(SmokeParticle::name.c_str(),
+                       &ParticleSystem::active_particle,
+                       SmokeParticle::id);
+    ImGui::RadioButton(WoodParticle::name.c_str(),
+                       &ParticleSystem::active_particle,
+                       WoodParticle::id);
 
     ImGui::End();
 }
@@ -168,6 +174,12 @@ void plot_particles_in_grid(GLFWwindow* window) {
                             break;
                         case(WallParticle::id):
                             particle = new WallParticle();
+                            break;
+                        case(SmokeParticle::id):
+                            particle = new SmokeParticle();
+                            break;
+                        case(WoodParticle::id):
+                            particle = new WoodParticle();
                             break;
                     }
                     // Flip the cursor's y-position such that it increases upwards.
