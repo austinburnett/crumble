@@ -2,6 +2,7 @@
 #define PARTICLE_H
 
 #include <string>
+
 #include <glm/vec3.hpp>
 
 #include "grid.hpp"
@@ -14,22 +15,21 @@ public:
     Particle() = default;
 
     // Updates the location of the particle based on its movement rules.
-    virtual void update(const int i, const int j, Grid& grid) const = 0; 
+    virtual void update(const int i, const int j, Grid& grid) = 0; 
 
     // Returns the color of the particle, composed of three channels- RGB.
     virtual glm::vec3 get_color() const = 0;
 
-public:
-    bool has_been_drawn = false;   // Has this particle been updated.
+    // Determines whether or not this matter will catch fire.
+    virtual bool is_flammable() const = 0;
 
-    bool is_flammable   = false;   // This will catch fire.
-    bool is_erodible    = false;   // This will react to acid.
+public:
+    bool has_been_drawn  = false;   // Has this this been updated.
 };
 
 class Liquid {
 public:
-    int dispersion_rate_;         // How fast the particle disperses.
-    float density;                // Determines if a particle will float or sink.
+    int dispersion_rate_;           // How fast this spreads out.
 };
 
 class Solid {
@@ -41,16 +41,18 @@ class Gas {
 };
 
 class Plasma {
-
+public:
 };
 
 class SandParticle: public Particle, Solid {
 public:
     SandParticle() = default;
 
-    void update(const int i, const int j, Grid& grid) const override; 
+    void update(const int i, const int j, Grid& grid) override; 
 
     glm::vec3 get_color() const override;
+
+    bool is_flammable() const override;
 
 public:
     // Both static members must be present on every Particle type.
@@ -62,9 +64,11 @@ class WaterParticle: public Particle, Liquid {
 public:
     WaterParticle() = default;
 
-    void update(const int i, const int j, Grid& grid) const override; 
+    void update(const int i, const int j, Grid& grid) override; 
 
     glm::vec3 get_color() const override;
+
+    bool is_flammable() const override;
 
 public:
     // Both static members must be present on every Particle type.
@@ -76,9 +80,11 @@ class WallParticle: public Particle, Solid {
 public:
     WallParticle() = default;
 
-    void update(const int i, const int j, Grid& grid) const override; 
-
+    void update(const int i, const int j, Grid& grid) override; 
+    
     glm::vec3 get_color() const override;
+
+    bool is_flammable() const override;
 
 public:
     // Both static members must be present on every Particle type.
@@ -90,9 +96,11 @@ class SmokeParticle: public Particle, Gas {
 public:
     SmokeParticle() = default;
 
-    void update(const int i, const int j, Grid& grid) const override; 
-
+    void update(const int i, const int j, Grid& grid) override; 
+    
     glm::vec3 get_color() const override;
+
+    bool is_flammable() const override;
 
 public:
     // Both static members must be present on every Particle type.
@@ -100,37 +108,40 @@ public:
     const static std::string name;
 };
 
-class WoodParticle: public Particle, Solid {
+class WoodParticle: public Particle, public Solid {
 public:
     WoodParticle() = default;
 
-    void update(const int i, const int j, Grid& grid) const override; 
+    void update(const int i, const int j, Grid& grid) override; 
 
     glm::vec3 get_color() const override;
+
+    bool is_flammable() const override;
 
 public:
     // Both static members must be present on every Particle type.
     constexpr static int id = 4;
     const static std::string name;
-
-    bool is_flammable = true;
-    bool is_erodible  = true;
 };
 
 class FireParticle: public Particle, Plasma {
 public:
     FireParticle() = default;
 
-    void update(const int i, const int j, Grid& grid) const override; 
+    void update(const int i, const int j, Grid& grid) override; 
 
     glm::vec3 get_color() const override;
+
+    bool is_flammable() const override;
+
+    void spawn_on_death();
 
 public:
     // Both static members must be present on every Particle type.
     constexpr static int id = 5;
     const static std::string name;
+    int lifetime_        = 50;
+    int frames_to_wait   = 10;
 };
-
-void reset_has_been_drawn_flags(Grid &grid);
 
 #endif

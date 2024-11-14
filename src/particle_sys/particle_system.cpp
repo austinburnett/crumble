@@ -75,8 +75,8 @@ void ParticleSystem::draw(unsigned int VAO, Shader& shader) {
         for(int j = 0; j < COLUMNS; ++j) {
             if(GRID.at(i, j) != NULL && !GRID.at(i, j)->has_been_drawn) {
                 glm::mat4 model(1.0f);
-                glm::vec3 color = GRID.at(i, j)->get_color();
                 GRID.at(i, j)->has_been_drawn = true;
+                glm::vec3 color = GRID.at(i, j)->get_color();
                 GRID.at(i, j)->update(i, j, GRID);
 
                 glm::vec3 translation = grid_to_ndc(i, j, ROWS, COLUMNS);
@@ -144,6 +144,9 @@ void display_particle_options_menu(double frame_time) {
     ImGui::RadioButton(WoodParticle::name.c_str(),
                        &ParticleSystem::active_particle,
                        WoodParticle::id);
+    ImGui::RadioButton(FireParticle::name.c_str(),
+                       &ParticleSystem::active_particle,
+                       FireParticle::id);
 
     ImGui::End();
 }
@@ -180,6 +183,9 @@ void plot_particles_in_grid(GLFWwindow* window) {
                             break;
                         case(WoodParticle::id):
                             particle = new WoodParticle();
+                            break;
+                        case(FireParticle::id):
+                            particle = new FireParticle();
                             break;
                     }
                     // Flip the cursor's y-position such that it increases upwards.
