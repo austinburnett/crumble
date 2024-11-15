@@ -14,7 +14,7 @@ class Particle {
 public:
     Particle() = default;
 
-    // Updates the location of the particle based on its movement rules.
+    // Determines the behavior of the particle in the simulation.
     virtual void update(const int i, const int j, Grid& grid) = 0; 
 
     // Returns the color of the particle, composed of three channels- RGB.
@@ -24,12 +24,12 @@ public:
     virtual bool is_flammable() const = 0;
 
 public:
-    bool has_been_drawn  = false;   // Has this this been updated.
+    bool has_been_drawn  = false;
 };
 
 class Liquid {
 public:
-    int dispersion_rate_;           // How fast this spreads out.
+    int dispersion_rate_; // How fast this spreads out.
 };
 
 class Solid {
@@ -55,7 +55,6 @@ public:
     bool is_flammable() const override;
 
 public:
-    // Both static members must be present on every Particle type.
     constexpr static int id = 0;
     const static std::string name;
 };
@@ -71,7 +70,6 @@ public:
     bool is_flammable() const override;
 
 public:
-    // Both static members must be present on every Particle type.
     constexpr static int id = 1;
     const static std::string name;
 };
@@ -87,7 +85,6 @@ public:
     bool is_flammable() const override;
 
 public:
-    // Both static members must be present on every Particle type.
     constexpr static int id = 2;
     const static std::string name;
 };
@@ -103,7 +100,6 @@ public:
     bool is_flammable() const override;
 
 public:
-    // Both static members must be present on every Particle type.
     constexpr static int id = 3;
     const static std::string name;
 };
@@ -119,12 +115,11 @@ public:
     bool is_flammable() const override;
 
 public:
-    // Both static members must be present on every Particle type.
     constexpr static int id = 4;
     const static std::string name;
 };
 
-class FireParticle: public Particle, Plasma {
+class FireParticle: public Particle, public Plasma {
 public:
     FireParticle() = default;
 
@@ -134,14 +129,11 @@ public:
 
     bool is_flammable() const override;
 
-    void spawn_on_death();
-
 public:
-    // Both static members must be present on every Particle type.
     constexpr static int id = 5;
     const static std::string name;
-    int lifetime_        = 50;
-    int frames_to_wait   = 10;
+    int lifetime_left_          = 10;      // The duration of the fire.
+    int delay_until_inflamed_   = 5;       // Slows the spread of fire.
 };
 
 #endif

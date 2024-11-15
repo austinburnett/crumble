@@ -157,17 +157,31 @@ bool WoodParticle::is_flammable() const {
 const std::string FireParticle::name = "Fire";
 
 void FireParticle::update(const int i, const int j, Grid& grid) {
-    lifetime_--;
-    frames_to_wait--;
+    lifetime_left_--;
+    delay_until_inflamed_--;
 
-    if(lifetime_ <= 0) {
+    if(lifetime_left_ <= 0) {
         delete grid.at(i, j);
         grid.at(i, j) = NULL;
-        grid.at(i, j) = new SmokeParticle();
         return;
     }
-    
-    if(frames_to_wait <= 0) {
+
+    std::random_device rand_device_seed;
+    static std::mt19937 rand_generator(rand_device_seed());
+    std::uniform_int_distribution<std::mt19937::result_type> distrib_100(1,100);
+    int flame_expansion_chance = distrib_100(rand_generator);
+    constexpr int THRESHOLD = 90;
+
+    if(flame_expansion_chance > THRESHOLD) {
+        if(j < COLUMNS-1 && i < ROWS-1 && grid.is_cell_empty(i+1, j+1)) {
+            grid.at(i + 1, j + 1) = new FireParticle();
+        }
+        else if(j < COLUMNS-1 && i > 0 && grid.is_cell_empty(i-1, j+1)) {
+            grid.at(i - 1, j + 1) = new FireParticle();
+        }
+    }
+
+    if(delay_until_inflamed_ <= 0) {
         // Check if there are flammable objects in its surroundings.
         if(j < COLUMNS-1 && !grid.is_cell_empty(i, j+1) &&
             grid.at(i, j+1)->is_flammable()) {
@@ -218,6 +232,8 @@ void FireParticle::update(const int i, const int j, Grid& grid) {
             Particle* particle = new FireParticle();
             grid.at(i-1, j+1) = particle;
         }
+        // Reset back to its original value.
+        delay_until_inflamed_ = 5;
     }
 }
 
