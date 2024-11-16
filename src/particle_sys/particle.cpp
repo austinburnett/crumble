@@ -25,8 +25,8 @@ void SandParticle::update(const int i, const int j, Grid& grid) {
     }
 }
 
-glm::vec3 SandParticle::get_color() const {
-    return glm::vec3(0.79f, 0.74f, 0.58f); 
+Color3 SandParticle::get_color() const {
+    return Color3(0.79f, 0.74f, 0.58f); 
 }
 
 bool SandParticle::is_flammable() const {
@@ -58,21 +58,25 @@ void WaterParticle::update(const int i, const int j, Grid& grid) {
         grid.swap(i, j, i+1, j-1);
     }
     // Move particle left one block if nothing is there
-    else if(i > 0 && grid.is_cell_empty(i-1, j) && direction_factor <= 5) {
-        grid.swap(i, j, i - 1, j);
+    else if(i-get_dispersion_rate() > 0 && grid.is_cell_empty(i-get_dispersion_rate(), j) && direction_factor <= 5) {
+        grid.swap(i, j, i - get_dispersion_rate(), j);
     }
     // Move particle right one block if nothing is there
-    else if(i < ROWS-1 && grid.is_cell_empty(i+1, j) && direction_factor > 5) {
-        grid.swap(i, j, i+1, j);
+    else if(i+get_dispersion_rate() < ROWS && grid.is_cell_empty(i+get_dispersion_rate(), j) && direction_factor > 5) {
+        grid.swap(i, j, i+get_dispersion_rate(), j);
     }
 }
 
-glm::vec3 WaterParticle::get_color() const {
-    return glm::vec3(0.0f, 0.0f, 1.0f); 
+Color3 WaterParticle::get_color() const {
+    return Color3(0.0f, 0.0f, 1.0f); 
 }
 
 bool WaterParticle::is_flammable() const {
     return false;
+}
+
+int WaterParticle::get_dispersion_rate() const {
+    return 5;
 }
 
 //------------------------------
@@ -84,8 +88,8 @@ void WallParticle::update(const int i, const int j, Grid& grid) {
     // The WallParticle doesn't move.
 }
 
-glm::vec3 WallParticle::get_color() const {
-    return glm::vec3(0.1f, 0.1f, 0.1f); 
+Color3 WallParticle::get_color() const {
+    return Color3(0.1f, 0.1f, 0.1f); 
 }
 
 bool WallParticle::is_flammable() const {
@@ -126,8 +130,8 @@ void SmokeParticle::update(const int i, const int j, Grid& grid) {
     }
 }
 
-glm::vec3 SmokeParticle::get_color() const {
-    return glm::vec3(0.5f, 0.5f, 0.5f); 
+Color3 SmokeParticle::get_color() const {
+    return Color3(0.5f, 0.5f, 0.5f); 
 }
 
 bool SmokeParticle::is_flammable() const {
@@ -143,8 +147,8 @@ void WoodParticle::update(const int i, const int j, Grid& grid) {
     // The WoodParticle doesn't move.
 }
 
-glm::vec3 WoodParticle::get_color() const {
-    return glm::vec3(0.59f, 0.29f, 0.0f); 
+Color3 WoodParticle::get_color() const {
+    return Color3(0.59f, 0.29f, 0.0f); 
 }
 
 bool WoodParticle::is_flammable() const {
@@ -189,45 +193,38 @@ void FireParticle::update(const int i, const int j, Grid& grid) {
             Particle* particle = new FireParticle();
             grid.at(i, j + 1) = particle;
         }
-        else if(j > 0 && !grid.is_cell_empty(i, j-1) && 
-            grid.at(i, j-1)->is_flammable()) {
+        else if(j > 0 && !grid.is_cell_empty(i, j-1) && grid.at(i, j-1)->is_flammable()) {
             delete grid.at(i, j-1);
             Particle* particle = new FireParticle();
             grid.at(i, j-1) = particle;
         }
-        else if(i > 0 && !grid.is_cell_empty(i-1, j) &&
-            grid.at(i-1, j)->is_flammable()) {
+        else if(i > 0 && !grid.is_cell_empty(i-1, j) && grid.at(i-1, j)->is_flammable()) {
             delete grid.at(i-1, j);
             Particle* particle = new FireParticle();
             grid.at(i-1, j) = particle;
         }
-        else if(i < ROWS-1 && !grid.is_cell_empty(i+1, j) && 
-            grid.at(i+1, j)->is_flammable()) {
+        else if(i < ROWS-1 && !grid.is_cell_empty(i+1, j) && grid.at(i+1, j)->is_flammable()) {
             delete grid.at(i+1, j);
             Particle* particle = new FireParticle();
             grid.at(i+1, j) = particle;
         }
         // Check the diagonals.
-        else if(i > 0 && j > 0 && !grid.is_cell_empty(i-1, j-1) &&
-            grid.at(i-1, j-1)->is_flammable()) {
+        else if(i > 0 && j > 0 && !grid.is_cell_empty(i-1, j-1) && grid.at(i-1, j-1)->is_flammable()) {
             delete grid.at(i-1, j-1);
             Particle* particle = new FireParticle();
             grid.at(i-1, j-1) = particle;
         }
-        else if(i < ROWS-1 && j > 0 && !grid.is_cell_empty(i+1, j-1) && 
-            grid.at(i+1, j-1)->is_flammable()) {
+        else if(i < ROWS-1 && j > 0 && !grid.is_cell_empty(i+1, j-1) && grid.at(i+1, j-1)->is_flammable()) {
             delete grid.at(i+1, j-1);
             Particle* particle = new FireParticle();
             grid.at(i+1, j-1) = particle;
         }
-        else if(i < ROWS-1 && j < COLUMNS-1 && !grid.is_cell_empty(i+1, j+1) &&
-            grid.at(i+1, j+1)->is_flammable()) {
+        else if(i < ROWS-1 && j < COLUMNS-1 && !grid.is_cell_empty(i+1, j+1) && grid.at(i+1, j+1)->is_flammable()) {
             delete grid.at(i+1, j+1);
             Particle* particle = new FireParticle();
             grid.at(i+1, j+1) = particle;
         }
-        else if(i > 0 && j < COLUMNS-1 && !grid.is_cell_empty(i-1, j+1) && 
-            grid.at(i-1, j+1)->is_flammable()) {
+        else if(i > 0 && j < COLUMNS-1 && !grid.is_cell_empty(i-1, j+1) && grid.at(i-1, j+1)->is_flammable()) {
             delete grid.at(i-1, j+1);
             Particle* particle = new FireParticle();
             grid.at(i-1, j+1) = particle;
@@ -237,8 +234,10 @@ void FireParticle::update(const int i, const int j, Grid& grid) {
     }
 }
 
-glm::vec3 FireParticle::get_color() const {
-    return glm::vec3(1.00f, 0.0f, 0.0f); 
+Color3 FireParticle::get_color() const {
+    if(lifetime_left_ <= 5)
+        return Color3(1.0f, 0.6f, 0.0f);
+    return Color3(1.00f, 0.0f, 0.0f); 
 }
 
 bool FireParticle::is_flammable() const {
