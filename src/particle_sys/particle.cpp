@@ -1,5 +1,4 @@
 #include <random>
-#include <iostream>
 
 #include "particle.hpp"
 #include "particle_sys/grid.hpp"
@@ -42,8 +41,10 @@ void WaterParticle::update(const int i, const int j, Grid& grid) {
     // Generate a random number between [1, 10]
     std::random_device rand_device_seed;
     static std::mt19937 rand_generator(rand_device_seed());
-    std::uniform_int_distribution<std::mt19937::result_type> distrib_10(1,10);
-    int direction_factor = distrib_10(rand_generator);
+    constexpr int RIGHT_THRESHOLD = 1;
+
+    std::uniform_int_distribution<std::mt19937::result_type> distrib_1(0, RIGHT_THRESHOLD);
+    const int DIRECTION = distrib_1(rand_generator);
 
     // Move particle down one block if nothing is there
     if(j > 0 && grid.is_cell_empty(i, j-1)) {
@@ -57,18 +58,18 @@ void WaterParticle::update(const int i, const int j, Grid& grid) {
     else if(i < ROWS-1 && j > 0 && grid.is_cell_empty(i+1, j-1)) {
         grid.swap(i, j, i+1, j-1);
     }
-    // Move particle left one block if nothing is there
-    else if(i-get_dispersion_rate() > 0 && grid.is_cell_empty(i-get_dispersion_rate(), j) && direction_factor <= 5) {
-        grid.swap(i, j, i - get_dispersion_rate(), j);
+    // Move particle left if nothing is there
+    else if(i-get_dispersion_rate() > 0 && DIRECTION < RIGHT_THRESHOLD) {
+        grid.move_cell_left_until_blocked(Cell(i, j), get_dispersion_rate());
     }
-    // Move particle right one block if nothing is there
-    else if(i+get_dispersion_rate() < ROWS && grid.is_cell_empty(i+get_dispersion_rate(), j) && direction_factor > 5) {
-        grid.swap(i, j, i+get_dispersion_rate(), j);
+    // Move particle right if nothing is there
+    else if(i+get_dispersion_rate() < ROWS && DIRECTION >= RIGHT_THRESHOLD) {
+        grid.move_cell_right_until_blocked(Cell(i, j), get_dispersion_rate());
     }
 }
 
 Color3 WaterParticle::get_color() const {
-    return Color3(0.0f, 0.0f, 1.0f); 
+    return Color3(0.0f, 0.0f, 1.0f);
 }
 
 bool WaterParticle::is_flammable() const {

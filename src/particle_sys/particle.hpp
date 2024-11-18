@@ -7,9 +7,11 @@
 
 #include "grid.hpp"
 
+// Clarify its usage.
+using Color3 = glm::vec3;
 
 // This stores data and functionality present in all four
-// states of matter: Liquid, Solid, and Gas, and Fire.
+// states of matter: Liquid, Solid, Gas, and Plasma.
 class Particle {
 public:
     Particle() = default;
@@ -18,7 +20,7 @@ public:
     virtual void update(const int i, const int j, Grid& grid) = 0; 
 
     // Returns the color of the particle, composed of three channels- RGB.
-    virtual glm::vec3 get_color() const = 0;
+    virtual Color3 get_color() const = 0;
 
     // Determines whether or not this matter will catch fire.
     virtual bool is_flammable() const = 0;
@@ -29,15 +31,17 @@ public:
 
 class Liquid {
 public:
-    int dispersion_rate_; // How fast this spreads out.
+    // Return the rate at which it spreads out horizontally.
+    virtual int get_dispersion_rate() const = 0;
 };
 
 class Solid {
-
 };
 
 class Gas {
-
+    // They need to move rapidly in all directions.
+    // Return the rate at which it spreads out horizontally and vertically.
+    //virtual int get_expansion_rate() const = 0;
 };
 
 class Plasma {
@@ -50,7 +54,7 @@ public:
 
     void update(const int i, const int j, Grid& grid) override; 
 
-    glm::vec3 get_color() const override;
+    Color3 get_color() const override;
 
     bool is_flammable() const override;
 
@@ -59,15 +63,17 @@ public:
     const static std::string name;
 };
 
-class WaterParticle: public Particle, Liquid {
+class WaterParticle: public Particle, public Liquid {
 public:
     WaterParticle() = default;
 
     void update(const int i, const int j, Grid& grid) override; 
 
-    glm::vec3 get_color() const override;
+    Color3 get_color() const override;
 
     bool is_flammable() const override;
+
+    int get_dispersion_rate() const override;
 
 public:
     constexpr static int id = 1;
@@ -80,7 +86,7 @@ public:
 
     void update(const int i, const int j, Grid& grid) override; 
     
-    glm::vec3 get_color() const override;
+    Color3 get_color() const override;
 
     bool is_flammable() const override;
 
@@ -95,7 +101,7 @@ public:
 
     void update(const int i, const int j, Grid& grid) override; 
     
-    glm::vec3 get_color() const override;
+    Color3 get_color() const override;
 
     bool is_flammable() const override;
 
@@ -110,7 +116,7 @@ public:
 
     void update(const int i, const int j, Grid& grid) override; 
 
-    glm::vec3 get_color() const override;
+    Color3 get_color() const override;
 
     bool is_flammable() const override;
 
@@ -125,7 +131,7 @@ public:
 
     void update(const int i, const int j, Grid& grid) override; 
 
-    glm::vec3 get_color() const override;
+    Color3 get_color() const override;
 
     bool is_flammable() const override;
 

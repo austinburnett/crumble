@@ -1,3 +1,4 @@
+#include <csignal>
 #include <iostream>
 
 #include "grid.hpp"
@@ -45,11 +46,57 @@ bool Grid::is_cell_empty(const int i, const int j) const {
     return false;
 }
 
+bool Grid::is_cell_empty(Cell cell) {
+    if(grid[cell.x][cell.y] == NULL) {
+        return true;
+    }
+    return false;
+}
 
 void Grid::swap(const int i1, const int j1, const int i2, const int j2) {
     Particle* temp = this->at(i2, j2);
     this->at(i2, j2) = this->at(i1, j1);
     this->at(i1, j1) = temp;
+}
+
+void Grid::swap(const Cell cell1, const Cell cell2) {
+    Particle* temp = this->at(cell2.x, cell2.y);
+    this->at(cell2.x, cell2.y) = this->at(cell1.x, cell1.y);
+    this->at(cell1.x, cell1.y) = temp;
+}
+
+void Grid::move_cell_left_until_blocked(Cell cell, int times) {
+    Cell furthest_empty_cell = cell;
+
+    for(int i = 1; i <= times; ++i) {
+        if(!is_cell_empty(cell.x - i, cell.y)) {
+            break;
+        }
+        else if(is_cell_empty(cell.x - i, cell.y)) {
+            furthest_empty_cell.x = cell.x - i;
+        }
+    }
+
+    if(furthest_empty_cell.x != cell.x) {
+        swap(cell, furthest_empty_cell);
+    }
+}
+
+void Grid::move_cell_right_until_blocked(Cell cell, int times) {
+    Cell furthest_empty_cell = cell;
+
+    for(int i = 1; i <= times; ++i) {
+        if(!is_cell_empty(cell.x + i, cell.y)) {
+            break;
+        }
+        else if(is_cell_empty(cell.x + i, cell.y)) {
+            furthest_empty_cell.x = cell.x + i;
+        }
+    }
+
+    if(furthest_empty_cell.x != cell.x) {
+        swap(cell, furthest_empty_cell);
+    }
 }
 
 //---------------------
