@@ -4,6 +4,31 @@
 #include "grid.hpp"
 #include "particle.hpp"
 
+Cell Cell::left() {
+    return Cell(x - 1, y);
+}
+Cell Cell::right() {
+    return Cell(x + 1, y);
+}
+Cell Cell::up() {
+    return Cell(x, y + 1);
+}
+Cell Cell::up_left() {
+    return Cell(x - 1, y + 1);
+}
+Cell Cell::up_right() {
+    return Cell(x + 1, y + 1);
+}
+Cell Cell::down() {
+    return Cell(x, y - 1);
+}
+Cell Cell::down_right() {
+    return Cell(x + 1, y - 1);
+}
+Cell Cell::down_left() {
+    return Cell(x - 1, y - 1);
+}
+
 Grid::Grid() {
     for(int i = 0; i < ROWS; ++i) {
         for(int j = 0; j < COLUMNS; ++j) {

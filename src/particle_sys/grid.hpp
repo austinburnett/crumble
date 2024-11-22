@@ -1,10 +1,5 @@
 #pragma once
 
-struct Cell {
-    Cell(int x, int y): x(x), y(y) {}
-    int x, y;
-};
-
 // Forward declare the class so a Particle
 // data member can be declared.
 class Particle;
@@ -13,6 +8,22 @@ class Particle;
 inline const unsigned int ROWS = 550;
 inline const unsigned int COLUMNS = 550;
 
+struct Cell {
+public:
+    Cell(int x, int y): x(x), y(y) {}
+    Cell left();
+    Cell right();
+    Cell up();
+    Cell up_right();
+    Cell up_left();
+    Cell down();
+    Cell down_right();
+    Cell down_left();
+
+public:
+    int x, y;
+};
+
 class Grid {
 private:
     // [0][0] is the bottom-left corner of the window
@@ -20,6 +31,7 @@ private:
 
 public:
     Grid();
+    ~Grid() = default;
 
     Grid(const Grid& other)           = delete;
 
@@ -31,6 +43,9 @@ public:
 
     // Returns the item at the cell specified.
     Particle* & at(const int i, const int j);
+
+    //Particle* & insert(const int i, const int j);
+    //Particle* & remove(const int i, const int j);
 
     // Returns the number of cells filled.
     int count() const;
@@ -52,7 +67,7 @@ public:
     // Swaps the values in both positions specified.
     void swap(const int i1, const int j1, const int i2, const int j2);
 
-    // Swaps the values in both positions specified.
+    // Swaps the values in both cells specified.
     void swap(const Cell cell1, const Cell cell2);
 };
 

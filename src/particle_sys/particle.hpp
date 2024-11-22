@@ -1,5 +1,4 @@
-#ifndef PARTICLE_H
-#define PARTICLE_H
+#pragma once
 
 #include <string>
 
@@ -10,20 +9,24 @@
 // Clarify its usage.
 using Color3 = glm::vec3;
 
-// This stores data and functionality present in all four
-// states of matter: Liquid, Solid, Gas, and Plasma.
+
 class Particle {
 public:
     Particle() = default;
+    virtual ~Particle() = default;
 
     // Determines the behavior of the particle in the simulation.
     virtual void update(const int i, const int j, Grid& grid) = 0; 
 
-    // Returns the color of the particle, composed of three channels- RGB.
-    virtual Color3 get_color() const = 0;
+    // Used to lookup what this particle is affected by.
+    virtual bool is_affected_by(const std::string particle) const = 0;
 
-    // Determines whether or not this matter will catch fire.
-    virtual bool is_flammable() const = 0;
+    // This is debateable.
+    // Determines how the particle is affected by the specified type
+    //virtual void interact(const std::string particle) const = 0;
+
+    // Returns the color in RGB format.
+    virtual Color3 get_color() const = 0;
 
 public:
     bool has_been_drawn  = false;
@@ -38,10 +41,28 @@ public:
 class Solid {
 };
 
+// They need to move rapidly in all directions.
+// Return the rate at which it spreads out horizontally and vertically.
 class Gas {
-    // They need to move rapidly in all directions.
-    // Return the rate at which it spreads out horizontally and vertically.
-    //virtual int get_expansion_rate() const = 0;
+public:
+    Gas() = default;
+    virtual ~Gas() = default;
+
+protected:
+    /*
+    virtual int get_vertical_scatter_rate() const = 0;
+    virtual int get_horizontal_scatter_rate() const = 0;
+    */
+
+    virtual bool will_go_up_left(int val) const = 0;
+    virtual bool will_go_up_right(int val) const = 0;
+    virtual bool will_go_up(int val) const = 0;
+
+protected:
+    // The sum of chances must be 100.
+    int up_chance = 80;
+    int up_left_chance = 10;
+    int up_right_chance = 10;
 };
 
 class Plasma {
@@ -53,10 +74,8 @@ public:
     SandParticle() = default;
 
     void update(const int i, const int j, Grid& grid) override; 
-
     Color3 get_color() const override;
-
-    bool is_flammable() const override;
+    bool is_affected_by(std::string particle) const override;
 
 public:
     constexpr static int id = 0;
@@ -68,10 +87,8 @@ public:
     WaterParticle() = default;
 
     void update(const int i, const int j, Grid& grid) override; 
-
     Color3 get_color() const override;
-
-    bool is_flammable() const override;
+    bool is_affected_by(std::string particle) const override;
 
     int get_dispersion_rate() const override;
 
@@ -85,10 +102,8 @@ public:
     WallParticle() = default;
 
     void update(const int i, const int j, Grid& grid) override; 
-    
     Color3 get_color() const override;
-
-    bool is_flammable() const override;
+    bool is_affected_by(std::string particle) const override;
 
 public:
     constexpr static int id = 2;
@@ -100,14 +115,27 @@ public:
     SmokeParticle() = default;
 
     void update(const int i, const int j, Grid& grid) override; 
-    
     Color3 get_color() const override;
+    bool is_affected_by(std::string particle) const override;
 
-    bool is_flammable() const override;
+    /*
+    int get_vertical_scatter_rate() const override;
+    int get_horizontal_scatter_rate() const override;
+    */
+    bool will_go_up_left(int val) const override;
+    bool will_go_up_right(int val) const override;
+    bool will_go_up(int val) const override;
 
 public:
     constexpr static int id = 3;
     const static std::string name;
+    int lifetime_left_          = 2000;      // The duration.
+
+protected:
+    // Modify from top to bottom.
+    int up_chance       = 40;
+    int up_left_chance  = 30;
+    int up_right_chance = 30;
 };
 
 class WoodParticle: public Particle, public Solid {
@@ -115,10 +143,10 @@ public:
     WoodParticle() = default;
 
     void update(const int i, const int j, Grid& grid) override; 
-
     Color3 get_color() const override;
+    bool is_affected_by(std::string particle) const override;
 
-    bool is_flammable() const override;
+    Particle* by_fire() const;
 
 public:
     constexpr static int id = 4;
@@ -130,16 +158,46 @@ public:
     FireParticle() = default;
 
     void update(const int i, const int j, Grid& grid) override; 
-
     Color3 get_color() const override;
-
-    bool is_flammable() const override;
+    bool is_affected_by(std::string particle) const override;
 
 public:
     constexpr static int id = 5;
     const static std::string name;
-    int lifetime_left_          = 10;      // The duration of the fire.
+
+private:
+    void set_spawn_on_death(Particle* particle);
+
+private:
+    Particle* spawn_on_death_ = NULL;
     int delay_until_inflamed_   = 5;       // Slows the spread of fire.
+    int lifetime_left_          = 10;      // The duration of the fire.
 };
 
-#endif
+class SteamParticle: public Particle, Gas {
+public:
+    SteamParticle() = default;
+
+    void update(const int i, const int j, Grid& grid) override; 
+    Color3 get_color() const override;
+    bool is_affected_by(std::string particle) const override;
+
+    /*
+    int get_vertical_scatter_rate() const override;
+    int get_horizontal_scatter_rate() const override;
+    */
+    bool will_go_up_left(int val) const override;
+    bool will_go_up_right(int val) const override;
+    bool will_go_up(int val) const override;
+
+public:
+    constexpr static int id = 6;
+    const static std::string name;
+    int lifetime_left_          = 2000;      // The duration.
+
+protected:
+    // Modify from top to bottom.
+    int up_chance       = 40;
+    int up_left_chance  = 30;
+    int up_right_chance = 30;
+};

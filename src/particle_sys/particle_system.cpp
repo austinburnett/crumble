@@ -147,6 +147,9 @@ void display_particle_options_menu(double frame_time) {
     ImGui::RadioButton(FireParticle::name.c_str(),
                        &ParticleSystem::active_particle,
                        FireParticle::id);
+    ImGui::RadioButton(SteamParticle::name.c_str(),
+                       &ParticleSystem::active_particle,
+                       SteamParticle::id);
 
     ImGui::End();
 }
@@ -186,6 +189,9 @@ void plot_particles_in_grid(GLFWwindow* window) {
                             break;
                         case(FireParticle::id):
                             particle = new FireParticle();
+                            break;
+                        case(SteamParticle::id):
+                            particle = new SteamParticle();
                             break;
                     }
                     // Flip the cursor's y-position such that it increases upwards.
