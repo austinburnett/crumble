@@ -5,20 +5,20 @@
 class Particle;
 
 // Settings
-inline const unsigned int ROWS = 550;
+inline const unsigned int ROWS    = 550;
 inline const unsigned int COLUMNS = 550;
 
 struct Cell {
 public:
     Cell(int x, int y): x(x), y(y) {}
-    Cell left();
-    Cell right();
-    Cell up();
-    Cell up_right();
-    Cell up_left();
-    Cell down();
-    Cell down_right();
-    Cell down_left();
+    Cell left()       const;
+    Cell right()      const;
+    Cell up()         const;
+    Cell up_right()   const;
+    Cell up_left()    const;
+    Cell down()       const;
+    Cell down_right() const;
+    Cell down_left()  const;
 
 public:
     int x, y;
@@ -32,17 +32,14 @@ private:
 public:
     Grid();
     ~Grid() = default;
-
     Grid(const Grid& other)           = delete;
-
     Grid(Grid&& other)                = delete;
-
     Grid operator=(const Grid& other) = delete;
-
     Grid operator=(Grid&& other)      = delete;
 
     // Returns the item at the cell specified.
     Particle* & at(const int i, const int j);
+    Particle* & at(const Cell cell);
 
     //Particle* & insert(const int i, const int j);
     //Particle* & remove(const int i, const int j);
@@ -51,7 +48,6 @@ public:
     int count() const;
 
     bool is_cell_empty(const int i, const int j) const;
-
     bool is_cell_empty(Cell cell);
 
     // Moves the cell to the destination or as close

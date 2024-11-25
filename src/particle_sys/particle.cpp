@@ -1,7 +1,8 @@
 #include <random>
 
+#include "grid.hpp"
 #include "particle.hpp"
-#include "particle_sys/grid.hpp"
+#include "particle_types.hpp"
 
 
 //------------------------------
@@ -24,8 +25,16 @@ void SandParticle::update(const int i, const int j, Grid& grid) {
     }
 }
 
-bool SandParticle::is_affected_by(const std::string particle) const {
+bool SandParticle::is_affected_by(const int particle_id) const {
     return false;
+}
+
+void SandParticle::interact_with(const int particle_id, Cell cell, Grid& grid) const {
+    switch(particle_id) {
+        default: {
+
+        }
+    }
 }
 
 Color3 SandParticle::get_color() const {
@@ -70,11 +79,25 @@ void WaterParticle::update(const int i, const int j, Grid& grid) {
     }
 }
 
-bool WaterParticle::is_affected_by(const std::string particle) const {
-    if(particle == "fire") {
+bool WaterParticle::is_affected_by(const int particle_id) const {
+    if(particle_id == ParticleType::FIRE) {
         return true;
     }
     return false;
+}
+
+void WaterParticle::interact_with(const int particle_id, Cell cell, Grid& grid) const {
+    switch(particle_id) {
+        case ParticleType::FIRE: {
+            delete grid.at(cell);
+            Particle* particle = new SteamParticle();
+            grid.at(cell) = particle;
+            break;
+        }
+        default: {
+
+        }
+    }
 }
 
 Color3 WaterParticle::get_color() const {
@@ -94,8 +117,16 @@ void WallParticle::update(const int i, const int j, Grid& grid) {
     // The WallParticle doesn't move.
 }
 
-bool WallParticle::is_affected_by(const std::string particle) const {
+bool WallParticle::is_affected_by(const int particle_id) const {
     return false;
+}
+
+void WallParticle::interact_with(const int particle_id, Cell cell, Grid& grid) const {
+    switch(particle_id) {
+        default: {
+
+        }
+    }
 }
 
 Color3 WallParticle::get_color() const {
@@ -140,8 +171,16 @@ void SmokeParticle::update(const int i, const int j, Grid& grid) {
     }
 }
 
-bool SmokeParticle::is_affected_by(const std::string particle) const {
+bool SmokeParticle::is_affected_by(const int particle_id) const {
     return false;
+}
+
+void SmokeParticle::interact_with(const int particle_id, Cell cell, Grid& grid) const {
+    switch(particle_id) {
+        default: {
+
+        }
+    }
 }
 
 Color3 SmokeParticle::get_color() const {
@@ -178,11 +217,33 @@ void WoodParticle::update(const int i, const int j, Grid& grid) {
     // The WoodParticle doesn't move.
 }
 
-bool WoodParticle::is_affected_by(const std::string particle) const {
-    if(particle == "fire") {
-        return true;
+bool WoodParticle::is_affected_by(const int particle_id) const {
+    switch(particle_id) {
+        case ParticleType::FIRE: {
+            return true;
+        }
+        default: {
+            return false;
+        }
     }
-    return false;
+}
+
+void WoodParticle::interact_with(const int particle_id, Cell cell, Grid& grid) const {
+    switch(particle_id) {
+        case ParticleType::FIRE: {
+            delete grid.at(cell);
+            Particle* particle = new FireParticle();
+            grid.at(cell) = particle;
+
+            if(grid.is_cell_empty(cell.up())) {
+                grid.at(cell.up()) = new SmokeParticle();
+            }
+            break;
+        }
+        default: {
+
+        }
+    }
 }
 
 Color3 WoodParticle::get_color() const {
@@ -197,7 +258,6 @@ const std::string FireParticle::name = "Fire";
 void FireParticle::update(const int i, const int j, Grid& grid) {
     Cell curr_cell(i, j);
     lifetime_left_--;
-    delay_until_inflamed_--;
 
     if(lifetime_left_ <= 0) {
         delete grid.at(i, j);
@@ -220,57 +280,19 @@ void FireParticle::update(const int i, const int j, Grid& grid) {
         }
     }
 
-    if(delay_until_inflamed_ <= 0) {
-        // Reset back to its original value.
-        delay_until_inflamed_ = 5;
-
-        // Check if there are flammable objects in its surroundings.
-        if(j < COLUMNS-1 && !grid.is_cell_empty(curr_cell.up()) && grid.at(i, j+1)->is_affected_by("fire")) {
-            delete grid.at(i, j + 1);
-            Particle* particle = new FireParticle();
-            grid.at(i, j + 1) = particle;
-        }
-        else if(j > 0 && !grid.is_cell_empty(curr_cell.down()) && grid.at(i, j-1)->is_affected_by("fire")) {
-            delete grid.at(i, j-1);
-            Particle* particle = new FireParticle();
-            grid.at(i, j-1) = particle;
-        }
-        else if(i > 0 && !grid.is_cell_empty(curr_cell.left()) && grid.at(i-1, j)->is_affected_by("fire")) {
-            delete grid.at(i-1, j);
-            Particle* particle = new FireParticle();
-            grid.at(i-1, j) = particle;
-        }
-        else if(i < ROWS-1 && !grid.is_cell_empty(curr_cell.right()) && grid.at(i+1, j)->is_affected_by("fire")) {
-            delete grid.at(i+1, j);
-            Particle* particle = new FireParticle();
-            grid.at(i+1, j) = particle;
-        }
-        // Check the diagonals.
-        else if(i > 0 && j > 0 && !grid.is_cell_empty(curr_cell.down_left()) && grid.at(i-1, j-1)->is_affected_by("fire")) {
-            delete grid.at(i-1, j-1);
-            Particle* particle = new FireParticle();
-            grid.at(i-1, j-1) = particle;
-        }
-        else if(i < ROWS-1 && j > 0 && !grid.is_cell_empty(curr_cell.down_right()) && grid.at(i+1, j-1)->is_affected_by("fire")) {
-            delete grid.at(i+1, j-1);
-            Particle* particle = new FireParticle();
-            grid.at(i+1, j-1) = particle;
-        }
-        else if(i < ROWS-1 && j < COLUMNS-1 && !grid.is_cell_empty(curr_cell.up_right()) && grid.at(i+1, j+1)->is_affected_by("fire")) {
-            delete grid.at(i+1, j+1);
-            Particle* particle = new FireParticle();
-            grid.at(i+1, j+1) = particle;
-        }
-        else if(i > 0 && j < COLUMNS-1 && !grid.is_cell_empty(curr_cell.up_left()) && grid.at(i-1, j+1)->is_affected_by("fire")) {
-            delete grid.at(i-1, j+1);
-            Particle* particle = new FireParticle();
-            grid.at(i-1, j+1) = particle;
-        }
-    }
+    ignite_surroundings(curr_cell, grid);
 }
 
-bool FireParticle::is_affected_by(const std::string particle) const {
+bool FireParticle::is_affected_by(const int particle_id) const {
     return false;
+}
+
+void FireParticle::interact_with(const int particle_id, Cell cell, Grid& grid) const {
+    switch(particle_id) {
+        default: {
+
+        }
+    }
 }
 
 Color3 FireParticle::get_color() const {
@@ -281,6 +303,39 @@ Color3 FireParticle::get_color() const {
 
 void FireParticle::set_spawn_on_death(Particle* particle) {
     spawn_on_death_ = particle;
+}
+
+void FireParticle::ignite_surroundings(const Cell cell, Grid& grid) {
+    delay_until_inflamed_--;
+
+    if(delay_until_inflamed_ <= 0) {
+        delay_until_inflamed_ = 5;
+
+        if(cell.y < COLUMNS-1 && !grid.is_cell_empty(cell.up()) && grid.at(cell.up())->is_affected_by(ParticleType::FIRE)) {
+            grid.at(cell.up())->interact_with(ParticleType::FIRE, cell.up(), grid);
+        }
+        else if(cell.y > 0 && !grid.is_cell_empty(cell.down()) && grid.at(cell.down())->is_affected_by(ParticleType::FIRE)) {
+            grid.at(cell.down())->interact_with(ParticleType::FIRE, cell.down(), grid);
+        }
+        else if(cell.x > 0 && !grid.is_cell_empty(cell.left()) && grid.at(cell.left())->is_affected_by(ParticleType::FIRE)) {
+            grid.at(cell.left())->interact_with(ParticleType::FIRE, cell.left(), grid);
+        }
+        else if(cell.x < ROWS-1 && !grid.is_cell_empty(cell.right()) && grid.at(cell.right())->is_affected_by(ParticleType::FIRE)) {
+            grid.at(cell.right())->interact_with(ParticleType::FIRE, cell.right(), grid);
+        }
+        else if(cell.x > 0 && cell.y > 0 && !grid.is_cell_empty(cell.down_left()) && grid.at(cell.down_left())->is_affected_by(ParticleType::FIRE)) {
+            grid.at(cell.down_left())->interact_with(ParticleType::FIRE, cell.down_left(), grid);
+        }
+        else if(cell.x < ROWS-1 && cell.y > 0 && !grid.is_cell_empty(cell.down_right()) && grid.at(cell.down_right())->is_affected_by(ParticleType::FIRE)) {
+            grid.at(cell.down_right())->interact_with(ParticleType::FIRE, cell.down_right(), grid);
+        }
+        else if(cell.x < ROWS-1 && cell.y < COLUMNS-1 && !grid.is_cell_empty(cell.up_right()) && grid.at(cell.up_right())->is_affected_by(ParticleType::FIRE)) {
+            grid.at(cell.up_right())->interact_with(ParticleType::FIRE, cell.up_right(), grid);
+        }
+        else if(cell.x > 0 && cell.y < COLUMNS-1 && !grid.is_cell_empty(cell.up_left()) && grid.at(cell.up_left())->is_affected_by(ParticleType::FIRE)) {
+            grid.at(cell.up_left())->interact_with(ParticleType::FIRE, cell.up_left(), grid);
+        }
+    }
 }
 
 //------------------------------
@@ -320,8 +375,16 @@ void SteamParticle::update(const int i, const int j, Grid& grid) {
     }
 }
 
-bool SteamParticle::is_affected_by(const std::string particle) const {
+bool SteamParticle::is_affected_by(const int particle_id) const {
     return false;
+}
+
+void SteamParticle::interact_with(const int particle_id, Cell cell, Grid& grid) const {
+    switch(particle_id) {
+        default: {
+
+        }
+    }
 }
 
 Color3 SteamParticle::get_color() const {

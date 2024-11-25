@@ -6,7 +6,6 @@
 
 #include "grid.hpp"
 
-// Clarify its usage.
 using Color3 = glm::vec3;
 
 
@@ -19,11 +18,10 @@ public:
     virtual void update(const int i, const int j, Grid& grid) = 0; 
 
     // Used to lookup what this particle is affected by.
-    virtual bool is_affected_by(const std::string particle) const = 0;
+    virtual bool is_affected_by(const int particle_id) const = 0;
 
-    // This is debateable.
-    // Determines how the particle is affected by the specified type
-    //virtual void interact(const std::string particle) const = 0;
+    // Determines how the particle interacts with the one specified.
+    virtual void interact_with(const int particle_id, Cell cell, Grid& grid) const = 0;
 
     // Returns the color in RGB format.
     virtual Color3 get_color() const = 0;
@@ -33,12 +31,13 @@ public:
 };
 
 class Liquid {
-public:
+protected:
     // Return the rate at which it spreads out horizontally.
     virtual int get_dispersion_rate() const = 0;
 };
 
 class Solid {
+protected:
 };
 
 // They need to move rapidly in all directions.
@@ -66,7 +65,7 @@ protected:
 };
 
 class Plasma {
-public:
+protected:
 };
 
 class SandParticle: public Particle, Solid {
@@ -75,7 +74,8 @@ public:
 
     void update(const int i, const int j, Grid& grid) override; 
     Color3 get_color() const override;
-    bool is_affected_by(std::string particle) const override;
+    bool is_affected_by(const int particle_id) const override;
+    void interact_with(const int particle_id, Cell cell, Grid& grid) const override;
 
 public:
     constexpr static int id = 0;
@@ -88,7 +88,8 @@ public:
 
     void update(const int i, const int j, Grid& grid) override; 
     Color3 get_color() const override;
-    bool is_affected_by(std::string particle) const override;
+    bool is_affected_by(const int particle_id) const override;
+    void interact_with(const int particle_id, Cell cell, Grid& grid) const override;
 
     int get_dispersion_rate() const override;
 
@@ -103,7 +104,8 @@ public:
 
     void update(const int i, const int j, Grid& grid) override; 
     Color3 get_color() const override;
-    bool is_affected_by(std::string particle) const override;
+    bool is_affected_by(const int particle_id) const override;
+    void interact_with(const int particle_id, Cell cell, Grid& grid) const override;
 
 public:
     constexpr static int id = 2;
@@ -116,7 +118,8 @@ public:
 
     void update(const int i, const int j, Grid& grid) override; 
     Color3 get_color() const override;
-    bool is_affected_by(std::string particle) const override;
+    bool is_affected_by(const int particle_id) const override;
+    void interact_with(const int particle_id, Cell cell, Grid& grid) const override;
 
     /*
     int get_vertical_scatter_rate() const override;
@@ -144,7 +147,8 @@ public:
 
     void update(const int i, const int j, Grid& grid) override; 
     Color3 get_color() const override;
-    bool is_affected_by(std::string particle) const override;
+    bool is_affected_by(const int particle_id) const override;
+    void interact_with(const int particle_id, Cell cell, Grid& grid) const override;
 
     Particle* by_fire() const;
 
@@ -159,7 +163,8 @@ public:
 
     void update(const int i, const int j, Grid& grid) override; 
     Color3 get_color() const override;
-    bool is_affected_by(std::string particle) const override;
+    bool is_affected_by(const int particle_id) const override;
+    void interact_with(const int particle_id, Cell cell, Grid& grid) const override;
 
 public:
     constexpr static int id = 5;
@@ -167,6 +172,7 @@ public:
 
 private:
     void set_spawn_on_death(Particle* particle);
+    void ignite_surroundings(const Cell cell, Grid& grid);
 
 private:
     Particle* spawn_on_death_ = NULL;
@@ -180,7 +186,8 @@ public:
 
     void update(const int i, const int j, Grid& grid) override; 
     Color3 get_color() const override;
-    bool is_affected_by(std::string particle) const override;
+    bool is_affected_by(const int particle_id) const override;
+    void interact_with(const int particle_id, Cell cell, Grid& grid) const override;
 
     /*
     int get_vertical_scatter_rate() const override;

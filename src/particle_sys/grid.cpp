@@ -4,28 +4,28 @@
 #include "grid.hpp"
 #include "particle.hpp"
 
-Cell Cell::left() {
+Cell Cell::left() const {
     return Cell(x - 1, y);
 }
-Cell Cell::right() {
+Cell Cell::right() const {
     return Cell(x + 1, y);
 }
-Cell Cell::up() {
+Cell Cell::up()  const{
     return Cell(x, y + 1);
 }
-Cell Cell::up_left() {
+Cell Cell::up_left() const {
     return Cell(x - 1, y + 1);
 }
-Cell Cell::up_right() {
+Cell Cell::up_right() const {
     return Cell(x + 1, y + 1);
 }
-Cell Cell::down() {
+Cell Cell::down() const {
     return Cell(x, y - 1);
 }
-Cell Cell::down_right() {
+Cell Cell::down_right() const {
     return Cell(x + 1, y - 1);
 }
-Cell Cell::down_left() {
+Cell Cell::down_left() const {
     return Cell(x - 1, y - 1);
 }
 
@@ -48,6 +48,21 @@ Particle* & Grid::at(const int i, const int j) {
     }
     catch(int error) {
         std::cerr << "Index out of bounds: " << i << ' ' << j << '\n';
+        throw error;
+    }
+}
+
+Particle* & Grid::at(const Cell cell) {
+    try{
+        if((cell.x >= 0 && cell.y >= 0) && (cell.x < ROWS && cell.y < COLUMNS)) {
+            return grid[cell.x][cell.y];
+        }
+        else {
+            throw -1;
+        }
+    }
+    catch(int error) {
+        std::cerr << "Index out of bounds: " << cell.x << ' ' << cell.y << '\n';
         throw error;
     }
 }
