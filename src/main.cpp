@@ -15,8 +15,8 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "reuse/shader.hpp"
-#include "particle_sys/grid.hpp"
-#include "particle_sys/particle_system.hpp"
+#include "grid.hpp"
+#include "particle_system.hpp"
 #include "reuse/square.hpp"
 #include "reuse/timer.hpp"
 
@@ -29,7 +29,7 @@ int main() {
     Timer frame_timer;
 
     // Setup the graphics pipeline with the corresonding fragment and vertex shader.
-    Shader ourShader("../resources/shader.vs", "../resources/shader.fs");
+    Shader ourShader("./shaders/shader.vs", "./shaders/shader.fs");
     Point point;
 
     // The render loop.

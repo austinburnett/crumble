@@ -3,7 +3,7 @@
 
 #include <csignal>
 
-#include "../reuse/shader.hpp"
+#include "reuse/shader.hpp"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -12,7 +12,7 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 
-#include "../glfw_callbacks.cpp"
+#include "glfw_callbacks.cpp"
 
 static bool SHOULD_THREAD_RUN = true;
 

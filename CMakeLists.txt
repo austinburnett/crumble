@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(falling-pixels)
+project(crumble)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -21,7 +21,7 @@ endif()
 # files. Include parent directory if you want
 # includes that look like <GLFW/glfw3.h>
 #---------------------------------------------
-include_directories(falling-pixels ./src ./src/glfw3/include/ ./src/imgui/ ./src/imgui/backends/)
+include_directories(crumble ./src ./vendor ./vendor/glfw3/include/ ./vendor/imgui/ ./vendor/imgui/backends/)
 
 #---------------------------------------------
 #              Find OpenGL
@@ -67,21 +67,22 @@ endif()
 #         Create the Executable
 #---------------------------------------------
 add_executable(
-falling-pixels
+crumble
 ./src/main.cpp 
-./src/glad/glad.c ./src/reuse/square.cpp ./src/particle_sys/grid.cpp ./src/particle_sys/particle.cpp ./src/glfw_callbacks.cpp ./src/particle_sys/particle_system.cpp
+./src/reuse/square.cpp ./src/grid.cpp ./src/particle.cpp ./src/glfw_callbacks.cpp ./src/particle_system.cpp
 ./src/reuse/timer.cpp
-./src/imgui/imgui.cpp ./src/imgui/imgui_draw.cpp ./src/imgui/imgui_tables.cpp ./src/imgui/imgui_widgets.cpp ./src/imgui/imgui_demo.cpp
-./src/imgui/backends/imgui_impl_opengl3.cpp ./src/imgui/backends/imgui_impl_glfw.cpp
+./vendor/glad/glad.c 
+./vendor/imgui/imgui.cpp ./vendor/imgui/imgui_draw.cpp ./vendor/imgui/imgui_tables.cpp ./vendor/imgui/imgui_widgets.cpp ./vendor/imgui/imgui_demo.cpp
+./vendor/imgui/backends/imgui_impl_opengl3.cpp ./vendor/imgui/backends/imgui_impl_glfw.cpp
 )
 
 #---------------------------------------------
 #             Link the Libraries
 #---------------------------------------------
-target_link_libraries(falling-pixels ${GLFW_LIBRARY})
-target_link_libraries(falling-pixels ${OPENGL_STATIC_LIBRARY})
+target_link_libraries(crumble ${GLFW_LIBRARY})
+target_link_libraries(crumble ${OPENGL_STATIC_LIBRARY})
 
 if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
-    target_link_libraries(falling-pixels ${COCOA_LIBRARY})
-    target_link_libraries(falling-pixels ${IO_LIBRARY})
+    target_link_libraries(crumble ${COCOA_LIBRARY})
+    target_link_libraries(crumble ${IO_LIBRARY})
 endif()

@@ -1,3 +1,3 @@
-# Falling-Pixels
+# Crumble
 
-This project is a pixel-simulator written in C++ and OpenGL, inspired by Noita.
+Crumble is a falling-sand system written in C++ and OpenGL, inspired by Noita.
