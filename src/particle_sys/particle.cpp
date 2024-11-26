@@ -1,4 +1,5 @@
 #include <random>
+#include <iostream>
 
 #include "grid.hpp"
 #include "particle.hpp"
@@ -11,17 +12,30 @@
 const std::string SandParticle::name = "Sand";
 
 void SandParticle::update(const int i, const int j, Grid& grid) {
-    // Move particle down one block if nothing is there
-    if(j > 0 && grid.is_cell_empty(i, j-1)) {
-        grid.swap(i, j, i, j - 1);
+    Cell cell(i, j);
+
+    if(j > 0 && grid.is_cell_empty(cell.down())) {
+        grid.swap(cell, cell.down());
     }
-    // Move particle down and left by one block if nothing is there
-    else if(j > 0 && i > 0 && grid.is_cell_empty(i-1, j-1)) {
-        grid.swap(i, j, i - 1, j - 1);
+    else if(j > 0 && i > 0 && grid.is_cell_empty(cell.down_left())) {
+        grid.swap(cell, cell.down_left());
     }
-    // Move particle down and right by one block if nothing is there
-    else if(j > 0 && i < COLUMNS-1 && grid.is_cell_empty(i+1, j-1)) {
-        grid.swap(i, j, i + 1, j - 1);
+    else if(j > 0 && i < COLUMNS-1 && grid.is_cell_empty(cell.down_right())) {
+        grid.swap(cell, cell.down_right());
+    }
+
+    // Generate a random number between [0, 1]
+    std::random_device rand_device_seed;
+    static std::mt19937 rand_generator(rand_device_seed());
+    constexpr int RIGHT_THRESHOLD = 1;
+    std::uniform_int_distribution<std::mt19937::result_type> distrib_1(0, RIGHT_THRESHOLD);
+    const int DIRECTION = distrib_1(rand_generator);
+
+    if(j > 0 && i > 0 && !grid.is_cell_empty(cell.down_left()) && grid.at(cell.down_left())->is_affected_by(ParticleType::SAND) && DIRECTION < RIGHT_THRESHOLD) {
+        grid.swap(cell, cell.down_left());
+    }
+    else if(j > 0 && i < COLUMNS-1 && !grid.is_cell_empty(cell.down_right()) && grid.at(cell.down_right())->is_affected_by(ParticleType::SAND) && DIRECTION >= RIGHT_THRESHOLD) {
+        grid.swap(cell, cell.down_right());
     }
 }
 
@@ -80,10 +94,20 @@ void WaterParticle::update(const int i, const int j, Grid& grid) {
 }
 
 bool WaterParticle::is_affected_by(const int particle_id) const {
-    if(particle_id == ParticleType::FIRE) {
-        return true;
+    switch(particle_id) {
+        case ParticleType::FIRE: {
+            return true;
+        }
+        // Temporary until I figure out how
+        // to distinguish the difference between a particle interaction
+        // that affects movement vs something that is a conversion.
+        case ParticleType::SAND: {
+            return true;
+        }
+        default: {
+            return false;
+        }
     }
-    return false;
 }
 
 void WaterParticle::interact_with(const int particle_id, Cell cell, Grid& grid) const {

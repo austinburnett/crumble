@@ -18,9 +18,11 @@ public:
     virtual void update(const int i, const int j, Grid& grid) = 0; 
 
     // Used to lookup what this particle is affected by.
+    // Is there a reaction between these two particles.
     virtual bool is_affected_by(const int particle_id) const = 0;
 
     // Determines how the particle interacts with the one specified.
+    // How this particle with react to the particle specified.
     virtual void interact_with(const int particle_id, Cell cell, Grid& grid) const = 0;
 
     // Returns the color in RGB format.
