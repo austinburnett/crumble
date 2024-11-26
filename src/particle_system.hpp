@@ -14,7 +14,7 @@
 
 #include "glfw_callbacks.cpp"
 
-static bool SHOULD_THREAD_RUN = true;
+inline bool SHOULD_THREAD_RUN = true;
 
 // The ParticleSystem class is responsible for
 // initializng all dependencies needed to render
@@ -23,19 +23,18 @@ static bool SHOULD_THREAD_RUN = true;
 class ParticleSystem {
 public:
     ParticleSystem();
-
     ~ParticleSystem();
 
     void draw(const unsigned int VAO, Shader& shader);
 
-    GLFWwindow* window;
-
+public:
     static int active_particle;
 
 private:
     // Creates multiple instanced arrays with the size specified.
     void gen_instanced_arrays_of_size(int instance_count);
 
+private:
     // The size of this array is the max particle limit for the grid size
     // 550 x 550. This buffer stores the translations for each particle.
     glm::vec3 translations_[302500];

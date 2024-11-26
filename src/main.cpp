@@ -17,6 +17,8 @@
 #include "reuse/shader.hpp"
 #include "grid.hpp"
 #include "particle_system.hpp"
+#include "glfw_wrapper.hpp"
+#include "imgui_wrapper.hpp"
 #include "reuse/square.hpp"
 #include "reuse/timer.hpp"
 
@@ -25,6 +27,8 @@
 Grid GRID;
 
 int main() {
+    GlfwWrapper glfw(550, 550, "Crumble");
+    ImguiWrapper imgui(glfw.get_window());
     ParticleSystem particle_system;
     Timer frame_timer;
 
@@ -33,17 +37,13 @@ int main() {
     Point point;
 
     // The render loop.
-    while (!glfwWindowShouldClose(particle_system.window)) {
-        // Start the Dear ImGui frame. Calls to
-        // ImGui must be made after ImGui::NewFrame().
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+    while (!glfwWindowShouldClose(glfw.get_window())) {
+        imgui.iteration();
 
         //ImGui::ShowDemoWindow();
         display_particle_options_menu(frame_timer.get_prev_elapsed_time().count());
 
-        processInput(particle_system.window);
+        processInput(glfw.get_window());
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT); 
 
@@ -54,10 +54,8 @@ int main() {
         // Stop measuring the elapsed time between consecutive glfwSwapBuffers returns.
         frame_timer.stop();
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        glfwSwapBuffers(particle_system.window);
+        imgui.render();
+        glfwSwapBuffers(glfw.get_window());
 
         // Start measuring the elapsed time between consecutive glfwSwapBuffers returns.
         frame_timer.start();

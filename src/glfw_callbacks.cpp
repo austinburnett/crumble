@@ -7,9 +7,9 @@
 #include <GLFW/glfw3.h>
 
 // Flag that dictates whether the worker thread will run
-static bool IS_THREAD_READY = false;
+inline bool IS_THREAD_READY = false;
 
-static std::thread WORKER_THREAD;
+inline std::thread WORKER_THREAD;
 
 // GLFW callback declarations
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
