@@ -1,10 +1,12 @@
-#include "glad/glad.h"
-#include "particle_system.hpp"
-#include "grid.hpp"
-#include "imgui.h"
-#include "particle.hpp"
-#include "particle_types.hpp"
+#include <imgui/imgui.h>
+#include <glad/glad.h>
 #include <OpenGL/gl.h>
+
+#include "grid.hpp"
+#include "particle.hpp"
+#include "particle_system.hpp"
+#include "particle_types.hpp"
+
 
 extern Grid GRID;
 extern const unsigned int COLUMNS;
@@ -12,11 +14,12 @@ extern const unsigned int ROWS;
 
 int ParticleSystem::active_particle = SandParticle::id;
 
-ParticleSystem::ParticleSystem() {
+ParticleSystem::ParticleSystem(GLFWwindow* window) {
+    G_WORKER_THREAD = std::thread(plot_particles_in_grid, window);
 }
 
 ParticleSystem::~ParticleSystem() {
-    G_SHOULD_THREAD_RUN = false;
+    G_KEEP_THREAD_RUNNING = false;
     G_WORKER_THREAD.join();
 }
 
@@ -88,8 +91,8 @@ glm::vec3 grid_to_ndc(int i, int j, const int width, const int height) {
 void plot_particles_in_grid(GLFWwindow* window) {
     static double xpos, ypos;
 
-    while(G_SHOULD_THREAD_RUN) {
-        if(G_IS_THREAD_READY) {
+    while(G_KEEP_THREAD_RUNNING) {
+        if(G_DO_WORK_IN_THREAD) {
             glfwGetCursorPos(window, &xpos, &ypos);
             if(int(xpos) >= 0 && int(COLUMNS-ypos) >= 0)
                 if(int(xpos) < ROWS && int(COLUMNS-ypos) < COLUMNS) {

@@ -17,6 +17,13 @@ public:
     GLFWwindow* get_window();
     void set_callbacks();
 
+    void poll_events() {
+        glfwPollEvents();
+    }
+    void swap_buffers() {
+        glfwSwapBuffers(m_window);
+    }
+
 private:
     GLFWwindow* m_window = NULL;
 };

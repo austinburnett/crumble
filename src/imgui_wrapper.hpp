@@ -13,6 +13,8 @@ public:
     ImguiWrapper(ImguiWrapper&&)                 = delete;
     ImguiWrapper& operator=(ImguiWrapper&&)      = delete;
 
-    void iteration();
+    // Execute the code that needs to be called every
+    // iteration of the render loop.
+    void render_loop_iteration();
     void render();
 };

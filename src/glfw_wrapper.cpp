@@ -3,12 +3,11 @@
 
 #include <glad/glad.h>
 
-#include "particle_system.hpp"
 #include "glfw_wrapper.hpp"
 
 extern std::thread G_WORKER_THREAD;
-extern bool        G_IS_THREAD_READY;
-extern bool        G_SHOULD_THREAD_RUN;
+extern bool        G_DO_WORK_IN_THREAD;
+extern bool        G_KEEP_THREAD_RUNNING;
 
 GlfwWrapper::GlfwWrapper(const int width, const int height, const char* title) {
         glfwInit();
@@ -54,18 +53,11 @@ void GlfwWrapper::set_callbacks() {
         glViewport(0, 0, width, height);
     });
     glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods) {
-        int width, height;
-        static bool has_started = 0;
-
         if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-            G_IS_THREAD_READY = true;
-            if(!has_started) {
-                has_started = 1;
-                G_WORKER_THREAD = std::thread(plot_particles_in_grid, window);
-            }
+            G_DO_WORK_IN_THREAD = true;
         }
         else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
-            G_IS_THREAD_READY = false;
+            G_DO_WORK_IN_THREAD = false;
         }
     });
 }

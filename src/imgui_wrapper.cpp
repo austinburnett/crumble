@@ -21,7 +21,7 @@ ImguiWrapper::~ImguiWrapper() {
     ImGui::DestroyContext();
 }
 
-void ImguiWrapper::iteration() {
+void ImguiWrapper::render_loop_iteration() {
     // Start the Dear ImGui frame. Calls to
     // ImGui must be made after ImGui::NewFrame().
     ImGui_ImplOpenGL3_NewFrame();

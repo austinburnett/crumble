@@ -14,15 +14,15 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 
 
-inline bool        G_SHOULD_THREAD_RUN = true;
-inline bool        G_IS_THREAD_READY = false;
+inline bool        G_KEEP_THREAD_RUNNING = true;
+inline bool        G_DO_WORK_IN_THREAD = false;
 inline std::thread G_WORKER_THREAD;
 
 // Manages the application's state, fills
 // the framebuffer, and inits the dependencies.
 class ParticleSystem {
 public:
-    ParticleSystem();
+    ParticleSystem(GLFWwindow* window);
     ~ParticleSystem();
 
     void draw(const unsigned int VAO, Shader& shader);

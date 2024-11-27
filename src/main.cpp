@@ -30,7 +30,7 @@ int main() {
     GlfwWrapper glfw(550, 550, "Crumble");
     glfw.set_callbacks();
     ImguiWrapper imgui(glfw.get_window());
-    ParticleSystem particle_system;
+    ParticleSystem particle_system(glfw.get_window());
     Timer frame_timer;
 
     // Setup the graphics pipeline with the corresonding fragment and vertex shader.
@@ -39,7 +39,7 @@ int main() {
 
     // The render loop.
     while (!glfwWindowShouldClose(glfw.get_window())) {
-        imgui.iteration();
+        imgui.render_loop_iteration();
 
         //ImGui::ShowDemoWindow();
         display_particle_options_menu(frame_timer.get_prev_elapsed_time().count());
@@ -50,11 +50,11 @@ int main() {
 
         particle_system.draw(point.VAO, ourShader);
 
-        glfwPollEvents();
+        glfw.poll_events();
 
         frame_timer.stop();
         imgui.render();
-        glfwSwapBuffers(glfw.get_window());
+        glfw.swap_buffers();
         frame_timer.start();
     }
 
