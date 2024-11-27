@@ -3,10 +3,12 @@
 
 #include <glad/glad.h>
 
+#include "particle_system.hpp"
 #include "glfw_wrapper.hpp"
-#include "glfw_callbacks.cpp"
 
-extern std::thread WORKER_THREAD;
+extern std::thread G_WORKER_THREAD;
+extern bool        G_IS_THREAD_READY;
+extern bool        G_SHOULD_THREAD_RUN;
 
 GlfwWrapper::GlfwWrapper(const int width, const int height, const char* title) {
         glfwInit();
@@ -26,12 +28,7 @@ GlfwWrapper::GlfwWrapper(const int width, const int height, const char* title) {
             raise(-1);
         }
         glfwMakeContextCurrent(m_window);
-
-        // Set glfw callbacks.
         glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        glfwSetErrorCallback(error_callback);
-        glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
-        glfwSetMouseButtonCallback(m_window, mouse_button_callback);
 
         // Load the OpenGL function pointers with glad.
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -43,9 +40,32 @@ GlfwWrapper::GlfwWrapper(const int width, const int height, const char* title) {
 GlfwWrapper::~GlfwWrapper() {
     glfwDestroyWindow(m_window);
     glfwTerminate();
-    WORKER_THREAD.join();
 }
 
 GLFWwindow* GlfwWrapper::get_window() {
     return m_window;
+}
+
+void GlfwWrapper::set_callbacks() {
+    glfwSetErrorCallback([](int error, const char* description) {
+        std::cout << "Error: " << error << '\n' << description << '\n';
+    });
+    glfwSetFramebufferSizeCallback(m_window, [](GLFWwindow* window, int width, int height) {
+        glViewport(0, 0, width, height);
+    });
+    glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods) {
+        int width, height;
+        static bool has_started = 0;
+
+        if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+            G_IS_THREAD_READY = true;
+            if(!has_started) {
+                has_started = 1;
+                G_WORKER_THREAD = std::thread(plot_particles_in_grid, window);
+            }
+        }
+        else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+            G_IS_THREAD_READY = false;
+        }
+    });
 }

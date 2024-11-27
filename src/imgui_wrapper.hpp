@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 
 // OpenGL/GLFW specific ImGui wrapper.
+// Handles the initial setup of ImGUI. It is not meant to replace all of ImGUI.
 class ImguiWrapper {
 public:
     ImguiWrapper(GLFWwindow* window);

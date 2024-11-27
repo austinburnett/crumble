@@ -28,6 +28,7 @@ Grid GRID;
 
 int main() {
     GlfwWrapper glfw(550, 550, "Crumble");
+    glfw.set_callbacks();
     ImguiWrapper imgui(glfw.get_window());
     ParticleSystem particle_system;
     Timer frame_timer;
@@ -43,7 +44,7 @@ int main() {
         //ImGui::ShowDemoWindow();
         display_particle_options_menu(frame_timer.get_prev_elapsed_time().count());
 
-        processInput(glfw.get_window());
+        particle_system.process_input(glfw.get_window());
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT); 
 
@@ -51,13 +52,9 @@ int main() {
 
         glfwPollEvents();
 
-        // Stop measuring the elapsed time between consecutive glfwSwapBuffers returns.
         frame_timer.stop();
-
         imgui.render();
         glfwSwapBuffers(glfw.get_window());
-
-        // Start measuring the elapsed time between consecutive glfwSwapBuffers returns.
         frame_timer.start();
     }
 

@@ -16,7 +16,8 @@ ParticleSystem::ParticleSystem() {
 }
 
 ParticleSystem::~ParticleSystem() {
-    SHOULD_THREAD_RUN = false;
+    G_SHOULD_THREAD_RUN = false;
+    G_WORKER_THREAD.join();
 }
 
 void ParticleSystem::draw(unsigned int VAO, Shader& shader) {
@@ -87,32 +88,32 @@ glm::vec3 grid_to_ndc(int i, int j, const int width, const int height) {
 void plot_particles_in_grid(GLFWwindow* window) {
     static double xpos, ypos;
 
-    while(SHOULD_THREAD_RUN) {
-        if(IS_THREAD_READY) {
+    while(G_SHOULD_THREAD_RUN) {
+        if(G_IS_THREAD_READY) {
             glfwGetCursorPos(window, &xpos, &ypos);
             if(int(xpos) >= 0 && int(COLUMNS-ypos) >= 0)
                 if(int(xpos) < ROWS && int(COLUMNS-ypos) < COLUMNS) {
                     Particle* particle;
                     switch(ParticleSystem::active_particle) {
-                        case(WaterParticle::id):
+                        case(ParticleType::WATER):
                             particle = new WaterParticle();
                             break;
-                        case(SandParticle::id):
+                        case(ParticleType::SAND):
                             particle = new SandParticle();
                             break;
-                        case(WallParticle::id):
+                        case(ParticleType::WALL):
                             particle = new WallParticle();
                             break;
-                        case(SmokeParticle::id):
+                        case(ParticleType::SMOKE):
                             particle = new SmokeParticle();
                             break;
-                        case(WoodParticle::id):
+                        case(ParticleType::WOOD):
                             particle = new WoodParticle();
                             break;
-                        case(FireParticle::id):
+                        case(ParticleType::FIRE):
                             particle = new FireParticle();
                             break;
-                        case(SteamParticle::id):
+                        case(ParticleType::STEAM):
                             particle = new SteamParticle();
                             break;
                     }
@@ -156,4 +157,11 @@ void display_particle_options_menu(double frame_time) {
                        ParticleType::STEAM);
 
     ImGui::End();
+}
+
+// Process all input every frame
+void ParticleSystem::process_input(GLFWwindow *window) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, true);
+    }
 }

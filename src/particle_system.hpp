@@ -2,6 +2,7 @@
 #define PARTICLE_SYSTEM_H
 
 #include <csignal>
+#include <thread>
 
 #include "reuse/shader.hpp"
 #include <GLFW/glfw3.h>
@@ -12,20 +13,20 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 
-#include "glfw_callbacks.cpp"
 
-inline bool SHOULD_THREAD_RUN = true;
+inline bool        G_SHOULD_THREAD_RUN = true;
+inline bool        G_IS_THREAD_READY = false;
+inline std::thread G_WORKER_THREAD;
 
-// The ParticleSystem class is responsible for
-// initializng all dependencies needed to render
-// and cleaning up those dependencies whenever the
-// object goes out of scope.
+// Manages the application's state, fills
+// the framebuffer, and inits the dependencies.
 class ParticleSystem {
 public:
     ParticleSystem();
     ~ParticleSystem();
 
     void draw(const unsigned int VAO, Shader& shader);
+    void process_input(GLFWwindow *window);
 
 public:
     static int active_particle;

@@ -70,7 +70,7 @@ add_executable(
 crumble
 ./src/main.cpp 
 ./src/glfw_wrapper.cpp ./src/imgui_wrapper.cpp
-./src/reuse/square.cpp ./src/grid.cpp ./src/particle.cpp ./src/glfw_callbacks.cpp ./src/particle_system.cpp
+./src/reuse/square.cpp ./src/grid.cpp ./src/particle.cpp ./src/particle_system.cpp
 ./src/reuse/timer.cpp
 ./vendor/glad/glad.c 
 ./vendor/imgui/imgui.cpp ./vendor/imgui/imgui_draw.cpp ./vendor/imgui/imgui_tables.cpp ./vendor/imgui/imgui_widgets.cpp ./vendor/imgui/imgui_demo.cpp
