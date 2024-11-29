@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/vec3.hpp>
+
 // Forward declare the class so a Particle
 // data member can be declared.
 class Particle;
@@ -24,6 +26,7 @@ public:
     int x, y;
 };
 
+
 class Grid {
 private:
     // [0][0] is the bottom-left corner of the window
@@ -31,7 +34,7 @@ private:
 
 public:
     Grid();
-    ~Grid() = default;
+    ~Grid();
     Grid(const Grid& other)           = delete;
     Grid(Grid&& other)                = delete;
     Grid operator=(const Grid& other) = delete;
@@ -65,8 +68,20 @@ public:
 
     // Swaps the values in both cells specified.
     void swap(const Cell cell1, const Cell cell2);
+
+    // This should be called once per frame to ensure
+    // the particles are only updated once per frame.
+    void reset_has_been_drawn_flags();
+
+    // Frees all the stored pointers.
+    // This can "clear" the matter from the window.
+    void clear();
 };
 
-// This should be called once per frame to ensure
-// the particles are only updated once per frame.
-void reset_has_been_drawn_flags(Grid& grid);
+//-------------------
+// Utility Functions
+//-------------------
+
+// Convert from the grid with the ranges [0, ROWS] and [0, COLUMNS] to ndc.
+// Opengl expects vertices between [-1, 1] and a y-axis pointing up.
+glm::vec3 grid_to_ndc(int i, int j, const int width, const int height);

@@ -37,6 +37,10 @@ Grid::Grid() {
     }
 }
 
+Grid::~Grid() {
+    clear();
+}
+
 Particle* & Grid::at(const int i, const int j) {
     try{
         if((i >= 0 && j >= 0) && (i < ROWS && j < COLUMNS)) {
@@ -139,14 +143,34 @@ void Grid::move_cell_right_until_blocked(Cell cell, int times) {
     }
 }
 
-//---------------------
-// Utilities
-//---------------------
-void reset_has_been_drawn_flags(Grid &grid) {
+void Grid::reset_has_been_drawn_flags() {
     for(int i = 0; i < ROWS; ++i) {
         for(int j = 0; j < COLUMNS; ++j) {
-            if(!grid.is_cell_empty(i, j))
-                grid.at(i, j)->has_been_drawn = false;
+            if(!is_cell_empty(i, j))
+                at(i, j)->has_been_drawn = false;
         }
     }
+}
+
+void Grid::clear() {
+    for(int i = 0; i < ROWS; ++i) {
+        for(int j = 0; j < COLUMNS; ++j) {
+            if(grid[i][j] != NULL) {
+                delete grid[i][j];
+                grid[i][j] = NULL;
+            }
+        }
+    }
+}
+
+
+//------------
+//  Utility Functions
+//------------
+glm::vec3 grid_to_ndc(int i, int j, const int width, const int height) {
+    glm::vec3 point;
+    point.x = (((float)i/width)*2)-1;
+    point.y = 1.0*((((float)j/height)*2)-1);
+    point.z = 0.0;
+    return point;
 }

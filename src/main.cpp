@@ -24,7 +24,7 @@
 
 // Pixel Simulation Buffer
 // [0][0] is the bottom-left corner of the window
-Grid GRID;
+inline Grid GRID;
 
 int main() {
     GlfwWrapper glfw(550, 550, "Crumble");

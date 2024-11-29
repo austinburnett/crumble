@@ -51,7 +51,7 @@ void ParticleSystem::draw(unsigned int VAO, Shader& shader) {
         glDrawArraysInstanced(GL_POINTS, 0, 1, instance_count);
 
     // Reset each particle's state so its only updated once per frame.
-    reset_has_been_drawn_flags(GRID);
+    GRID.reset_has_been_drawn_flags();
 
     glBindVertexArray(0);
 }
@@ -77,15 +77,6 @@ void ParticleSystem::gen_instanced_arrays_of_size(int instance_count) {
     glEnableVertexAttribArray(2);
     glVertexAttribDivisor(2, 1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
-
-glm::vec3 grid_to_ndc(int i, int j, const int width, const int height) {
-    glm::vec3 point;
-    point.x = (((float)i/width)*2)-1;
-    point.y = 1.0*((((float)j/height)*2)-1);
-    point.z = 0.0;
-    return point;
 }
 
 void plot_particles_in_grid(GLFWwindow* window) {
@@ -158,6 +149,8 @@ void display_particle_options_menu(double frame_time) {
     ImGui::RadioButton(SteamParticle::name.c_str(),
                        &ParticleSystem::active_particle,
                        ParticleType::STEAM);
+    if(ImGui::Button("Clear"))
+        GRID.clear();
 
     ImGui::End();
 }

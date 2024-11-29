@@ -50,10 +50,6 @@ private:
 //void display_particle_options_menu();
 void display_particle_options_menu(double frame_time);
 
-// Convert from the grid with the ranges [0, ROWS] and [0, COLUMNS] to ndc.
-// Opengl expects vertices between [-1, 1] and a y-axis pointing up.
-//glm::vec3 grid_to_ndc(int i, int j, const int width, const int height);
-glm::vec3 grid_to_ndc(int i, int j, const int width, const int height);
 
 // This plots particles in the grid corresponding to the cursor's location
 // which are in screen coordinates [0, 0], is in the top-left whereas the
