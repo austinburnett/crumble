@@ -13,6 +13,7 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 
+#include "grid.hpp"
 
 inline bool        G_KEEP_THREAD_RUNNING = true;
 inline bool        G_DO_WORK_IN_THREAD = false;
@@ -30,6 +31,7 @@ public:
 
 public:
     static int active_particle;
+    static int s_particle_size;
 
 private:
     // Creates multiple instanced arrays with the size specified.
@@ -55,5 +57,10 @@ void display_particle_options_menu(double frame_time);
 // which are in screen coordinates [0, 0], is in the top-left whereas the
 // position [0, 0] in the grid corresponds to the bottom-left corner.
 void plot_particles_in_grid(GLFWwindow* window);
+
+void plot(Cell cell, const int amount, Particle* particles[]);
+void plot_1x1(Cell cell, Particle* particle);
+void plot_2x2(Cell cell, Particle* particles[]);
+void plot_4x4(Cell cell, Particle* particles[]);
 
 #endif

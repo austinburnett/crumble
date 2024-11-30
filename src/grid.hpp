@@ -32,6 +32,9 @@ private:
     // [0][0] is the bottom-left corner of the window
     Particle* grid[ROWS][COLUMNS];
 
+private:
+    bool is_within_bounds(const int x, const int y);
+
 public:
     Grid();
     ~Grid();
@@ -40,14 +43,15 @@ public:
     Grid operator=(const Grid& other) = delete;
     Grid operator=(Grid&& other)      = delete;
 
-    // Returns the item at the cell specified.
+    // Returns the item at the position specified.
     Particle* & at(const int i, const int j);
     Particle* & at(const Cell cell);
 
-    //Particle* & insert(const int i, const int j);
-    //Particle* & remove(const int i, const int j);
+    void insert(const int x, const int y, Particle* particle);
+    void insert(const Cell cell, Particle* particle);
+    void remove(const int x, const int y);
 
-    // Returns the number of cells filled.
+    // Returns the number of items in the grid.
     int count() const;
 
     bool is_cell_empty(const int i, const int j) const;

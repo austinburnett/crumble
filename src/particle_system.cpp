@@ -4,6 +4,7 @@
 
 #include "grid.hpp"
 #include "particle.hpp"
+#include "particle_sizes.hpp"
 #include "particle_system.hpp"
 #include "particle_types.hpp"
 
@@ -13,6 +14,7 @@ extern const unsigned int COLUMNS;
 extern const unsigned int ROWS;
 
 int ParticleSystem::active_particle = SandParticle::id;
+int ParticleSystem::s_particle_size = 0;
 
 ParticleSystem::ParticleSystem(GLFWwindow* window) {
     G_WORKER_THREAD = std::thread(plot_particles_in_grid, window);
@@ -87,33 +89,64 @@ void plot_particles_in_grid(GLFWwindow* window) {
             glfwGetCursorPos(window, &xpos, &ypos);
             if(int(xpos) >= 0 && int(COLUMNS-ypos) >= 0)
                 if(int(xpos) < ROWS && int(COLUMNS-ypos) < COLUMNS) {
-                    Particle* particle;
-                    switch(ParticleSystem::active_particle) {
-                        case(ParticleType::WATER):
-                            particle = new WaterParticle();
+                    int amount_to_plot;
+                    switch(ParticleSystem::s_particle_size) {
+                        case Size::SIZE_ZERO:
+                            amount_to_plot = 1; // 1x1
                             break;
-                        case(ParticleType::SAND):
-                            particle = new SandParticle();
+                        case Size::SIZE_ONE:
+                            amount_to_plot = 4; // 2x2
                             break;
-                        case(ParticleType::WALL):
-                            particle = new WallParticle();
-                            break;
-                        case(ParticleType::SMOKE):
-                            particle = new SmokeParticle();
-                            break;
-                        case(ParticleType::WOOD):
-                            particle = new WoodParticle();
-                            break;
-                        case(ParticleType::FIRE):
-                            particle = new FireParticle();
-                            break;
-                        case(ParticleType::STEAM):
-                            particle = new SteamParticle();
+                        case Size::SIZE_TWO:
+                            amount_to_plot = 16; // 4x4
                             break;
                     }
+
+                    Particle* particles[amount_to_plot];
+                    switch(ParticleSystem::active_particle) {
+                        int i;
+                        case(ParticleType::WATER): {
+                            for(i = 0; i < amount_to_plot; ++i)
+                                particles[i] = new WaterParticle();
+                            break;
+                        }
+                        case(ParticleType::SAND): {
+                            for(i = 0; i < amount_to_plot; ++i)
+                                particles[i] = new SandParticle();
+                            break;
+                        }
+                        case(ParticleType::WALL): {
+                            for(i = 0; i < amount_to_plot; ++i)
+                                particles[i] = new WallParticle();
+                            break;
+                        }
+                        case(ParticleType::SMOKE): {
+                            for(i = 0; i < amount_to_plot; ++i)
+                                particles[i] = new SmokeParticle();
+                            break;
+                        }
+                        case(ParticleType::WOOD): {
+                            for(i = 0; i < amount_to_plot; ++i)
+                                particles[i] = new WoodParticle();
+                            break;
+                        }
+                        case(ParticleType::FIRE): {
+                            for(i = 0; i < amount_to_plot; ++i)
+                                particles[i] = new FireParticle();
+                            break;
+                        }
+                        case(ParticleType::STEAM): {
+                            for(i = 0; i < amount_to_plot; ++i)
+                                particles[i] = new SteamParticle();
+                            break;
+                        }
+                    }
+
                     // Flip the cursor's y-position such that it increases upwards.
-                    GRID.at(int(xpos), int(COLUMNS-ypos)) = particle;
-                    particle = nullptr;
+                    plot(Cell(int(xpos), int(COLUMNS-ypos)), amount_to_plot, particles);
+
+                    for(int i = 0; i < amount_to_plot; ++i)
+                        particles[i] = nullptr;
                 }
         }
     }
@@ -127,6 +160,11 @@ void display_particle_options_menu(double frame_time) {
     ImGui::Begin("Particle Choices", p_open, imgui_window_flags);
 
     ImGui::Text("Frame time: %f", frame_time);
+
+    ImGui::RadioButton("Size 0", &ParticleSystem::s_particle_size, Size::SIZE_ZERO);
+    ImGui::RadioButton("Size 1", &ParticleSystem::s_particle_size, Size::SIZE_ONE);
+    ImGui::RadioButton("Size 2", &ParticleSystem::s_particle_size, Size::SIZE_TWO);
+    ImGui::NewLine();
     
     ImGui::RadioButton(SandParticle::name.c_str(),
                        &ParticleSystem::active_particle,
@@ -149,6 +187,7 @@ void display_particle_options_menu(double frame_time) {
     ImGui::RadioButton(SteamParticle::name.c_str(),
                        &ParticleSystem::active_particle,
                        ParticleType::STEAM);
+    ImGui::NewLine();
     if(ImGui::Button("Clear"))
         GRID.clear();
 
@@ -160,4 +199,54 @@ void ParticleSystem::process_input(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
+}
+
+void plot(Cell cell, const int amount, Particle* particles[]) {
+    switch(amount) {
+        case 1:
+            plot_1x1(cell, particles[0]);
+            break;
+        case 4:
+            plot_2x2(cell, particles);
+            break;
+        case 16:
+            plot_4x4(cell, particles);
+            break;
+    }
+}
+
+void plot_1x1(Cell cell, Particle* particle) {
+    GRID.insert(cell, particle);
+}
+
+void plot_2x2(Cell cell, Particle* particles[]) {
+    GRID.insert(cell,              particles[0]);
+    GRID.insert(cell.right(),      particles[1]);
+    GRID.insert(cell.down(),       particles[2]);
+    GRID.insert(cell.down_right(), particles[3]);
+}
+
+void plot_4x4(Cell cell, Particle* particles[]) {
+    // Top row
+    GRID.insert(cell,               particles[0]);
+    GRID.insert(cell.x + 1, cell.y, particles[1]);
+    GRID.insert(cell.x + 2, cell.y, particles[2]);
+    GRID.insert(cell.x + 3, cell.y, particles[3]);
+
+    // Middle rows
+    GRID.insert(cell.x,     cell.y - 1, particles[4]);
+    GRID.insert(cell.x + 1, cell.y - 1, particles[5]);
+    GRID.insert(cell.x + 2, cell.y - 1, particles[6]);
+    GRID.insert(cell.x + 3, cell.y - 1, particles[7]);
+
+    GRID.insert(cell.x,     cell.y - 2, particles[8]);
+    GRID.insert(cell.x + 1, cell.y - 2, particles[9]);
+    GRID.insert(cell.x + 2, cell.y - 2, particles[10]);
+    GRID.insert(cell.x + 3, cell.y - 2, particles[11]);
+
+    // Bottom row
+    GRID.insert(cell.x,     cell.y - 3, particles[12]);
+    GRID.insert(cell.x + 1, cell.y - 3, particles[13]);
+    GRID.insert(cell.x + 2, cell.y - 3, particles[14]);
+    GRID.insert(cell.x + 3, cell.y - 3, particles[15]);
 }

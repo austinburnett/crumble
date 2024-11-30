@@ -71,6 +71,36 @@ Particle* & Grid::at(const Cell cell) {
     }
 }
 
+void Grid::insert(const int x, const int y, Particle* particle) {
+    if(is_within_bounds(x, y) && is_cell_empty(x, y))
+        grid[x][y] = particle;
+    /*
+    else if(!is_cell_empty(x, y))
+        std::cerr << "Warn: insert called when the cell is not empty: " 
+                  << x << ' ' << y << '\n';
+    */
+}
+
+void Grid::insert(const Cell cell, Particle* particle) {
+    if(is_within_bounds(cell.x, cell.y) && is_cell_empty(cell.x, cell.y))
+        grid[cell.x][cell.y] = particle;
+    /*
+    else if(!is_cell_empty(cell.x, cell.y))
+        std::cerr << "Warn: insert called when the cell is not empty: " 
+                  << cell.x << ' ' << cell.y << '\n';
+    */
+}
+
+void Grid::remove(const int x, const int y) {
+    if(is_within_bounds(x, y) && !is_cell_empty(x, y)) {
+        delete grid[x][y];
+        grid[x][y] = NULL;
+    }
+    else if(!is_cell_empty(x, y))
+        std::cerr << "Warn: remove called when the cell is empty: " 
+                  << x << ' ' << y << '\n';
+}
+
 int Grid::count() const {
     int count = 0;
 
@@ -163,6 +193,14 @@ void Grid::clear() {
     }
 }
 
+bool Grid::is_within_bounds(const int x, const int y) {
+    if(x >= 0 && y >= 0 && x < ROWS && y < COLUMNS)
+        return true;
+    else {
+        std::cerr << "Warn: indices out of range: " << x << ' ' << y << '\n';
+        return false;
+    }
+}
 
 //------------
 //  Utility Functions
