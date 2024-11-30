@@ -157,9 +157,17 @@ void display_particle_options_menu(double frame_time) {
     bool* p_open = NULL;
     imgui_window_flags |= ImGuiWindowFlags_NoMove;
 
+    ImGuiIO& io = ImGui::GetIO();
+
     ImGui::Begin("Particle Choices", p_open, imgui_window_flags);
 
     ImGui::Text("Frame time: %f", frame_time);
+
+    if(ImGui::IsMousePosValid())
+        ImGui::Text("Mouse pos: (%g, %g)", io.MousePos.x, io.MousePos.y);
+    else
+        ImGui::Text("Mouse pos: <Invalid>");
+    ImGui::Text("Mouse delta: (%g, %g)", io.MouseDelta.x, io.MouseDelta.y);
 
     ImGui::RadioButton("Size 0", &ParticleSystem::s_particle_size, Size::SIZE_ZERO);
     ImGui::RadioButton("Size 1", &ParticleSystem::s_particle_size, Size::SIZE_ONE);
