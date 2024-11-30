@@ -4,7 +4,7 @@
 #include <csignal>
 #include <thread>
 
-#include "reuse/shader.hpp"
+#include "shader.hpp"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>

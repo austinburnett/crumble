@@ -68,10 +68,7 @@ endif()
 #---------------------------------------------
 add_executable(
 crumble
-./src/main.cpp 
-./src/glfw_wrapper.cpp ./src/imgui_wrapper.cpp
-./src/reuse/square.cpp ./src/grid.cpp ./src/particle.cpp ./src/particle_system.cpp
-./src/reuse/timer.cpp
+./src/main.cpp ./src/glfw_wrapper.cpp ./src/imgui_wrapper.cpp ./src/square.cpp ./src/grid.cpp ./src/particle.cpp ./src/particle_system.cpp ./src/timer.cpp
 ./vendor/glad/glad.c 
 ./vendor/imgui/imgui.cpp ./vendor/imgui/imgui_draw.cpp ./vendor/imgui/imgui_tables.cpp ./vendor/imgui/imgui_widgets.cpp ./vendor/imgui/imgui_demo.cpp
 ./vendor/imgui/backends/imgui_impl_opengl3.cpp ./vendor/imgui/backends/imgui_impl_glfw.cpp

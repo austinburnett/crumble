@@ -14,13 +14,11 @@
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-#include "reuse/shader.hpp"
-#include "grid.hpp"
 #include "particle_system.hpp"
 #include "glfw_wrapper.hpp"
 #include "imgui_wrapper.hpp"
-#include "reuse/square.hpp"
-#include "reuse/timer.hpp"
+#include "square.hpp"
+#include "timer.hpp"
 
 // Pixel Simulation Buffer
 // [0][0] is the bottom-left corner of the window
