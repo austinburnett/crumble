@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <OpenGL/gl.h>
 
+#include "GLFW/glfw3.h"
 #include "grid.hpp"
 #include "particle.hpp"
 #include "particle_sizes.hpp"
@@ -87,67 +88,76 @@ void plot_particles_in_grid(GLFWwindow* window) {
     while(G_KEEP_THREAD_RUNNING) {
         if(G_DO_WORK_IN_THREAD) {
             glfwGetCursorPos(window, &xpos, &ypos);
-            if(int(xpos) >= 0 && int(COLUMNS-ypos) >= 0)
-                if(int(xpos) < ROWS && int(COLUMNS-ypos) < COLUMNS) {
-                    int amount_to_plot;
-                    switch(ParticleSystem::s_particle_size) {
-                        case Size::SIZE_ZERO:
-                            amount_to_plot = 1; // 1x1
-                            break;
-                        case Size::SIZE_ONE:
-                            amount_to_plot = 4; // 2x2
-                            break;
-                        case Size::SIZE_TWO:
-                            amount_to_plot = 16; // 4x4
-                            break;
-                    }
+            int amount_to_plot;
+            switch(ParticleSystem::s_particle_size) {
+                case Size::SIZE_ZERO:
+                    amount_to_plot = 1;  // 1x1
+                    break;
+                case Size::SIZE_ONE:
+                    amount_to_plot = 4;  // 2x2
+                    break;
+                case Size::SIZE_TWO:
+                    amount_to_plot = 16; // 4x4
+                    break;
+            }
 
-                    Particle* particles[amount_to_plot];
-                    switch(ParticleSystem::active_particle) {
-                        int i;
-                        case(ParticleType::WATER): {
-                            for(i = 0; i < amount_to_plot; ++i)
-                                particles[i] = new WaterParticle();
-                            break;
-                        }
-                        case(ParticleType::SAND): {
-                            for(i = 0; i < amount_to_plot; ++i)
-                                particles[i] = new SandParticle();
-                            break;
-                        }
-                        case(ParticleType::WALL): {
-                            for(i = 0; i < amount_to_plot; ++i)
-                                particles[i] = new WallParticle();
-                            break;
-                        }
-                        case(ParticleType::SMOKE): {
-                            for(i = 0; i < amount_to_plot; ++i)
-                                particles[i] = new SmokeParticle();
-                            break;
-                        }
-                        case(ParticleType::WOOD): {
-                            for(i = 0; i < amount_to_plot; ++i)
-                                particles[i] = new WoodParticle();
-                            break;
-                        }
-                        case(ParticleType::FIRE): {
-                            for(i = 0; i < amount_to_plot; ++i)
-                                particles[i] = new FireParticle();
-                            break;
-                        }
-                        case(ParticleType::STEAM): {
-                            for(i = 0; i < amount_to_plot; ++i)
-                                particles[i] = new SteamParticle();
-                            break;
-                        }
-                    }
-
-                    // Flip the cursor's y-position such that it increases upwards.
-                    plot(Cell(int(xpos), int(COLUMNS-ypos)), amount_to_plot, particles);
-
-                    for(int i = 0; i < amount_to_plot; ++i)
-                        particles[i] = nullptr;
+            Particle* particles[amount_to_plot];
+            switch(ParticleSystem::active_particle) {
+                int i;
+                case(ParticleType::WATER): {
+                    for(i = 0; i < amount_to_plot; ++i)
+                        particles[i] = new WaterParticle();
+                    break;
                 }
+                case(ParticleType::SAND): {
+                    for(i = 0; i < amount_to_plot; ++i)
+                        particles[i] = new SandParticle();
+                    break;
+                }
+                case(ParticleType::WALL): {
+                    for(i = 0; i < amount_to_plot; ++i)
+                        particles[i] = new WallParticle();
+                    break;
+                }
+                case(ParticleType::SMOKE): {
+                    for(i = 0; i < amount_to_plot; ++i)
+                        particles[i] = new SmokeParticle();
+                    break;
+                }
+                case(ParticleType::WOOD): {
+                    for(i = 0; i < amount_to_plot; ++i)
+                        particles[i] = new WoodParticle();
+                    break;
+                }
+                case(ParticleType::FIRE): {
+                    for(i = 0; i < amount_to_plot; ++i)
+                        particles[i] = new FireParticle();
+                    break;
+                }
+                case(ParticleType::STEAM): {
+                    for(i = 0; i < amount_to_plot; ++i)
+                        particles[i] = new SteamParticle();
+                    break;
+                }
+            }
+
+            int width, height;
+            glfwGetWindowSize(window, &width, &height);
+
+            // Sync cursor to where the particles render at. This fixes the
+            // resolution dependency of my system.
+            double x_over_width = xpos / width, y_over_height = ypos / height;
+            int conversion_x = x_over_width * ROWS;
+            int conversion_y = y_over_height * COLUMNS;
+
+            // Flip the cursor's y-position such that it increases upwards.
+            // This is necessary because I like working with coordinate systems
+            // that have the origin in the bottom-left as opposed to the top-left.
+            //plot(Cell(int(xpos), int(COLUMNS-ypos)), amount_to_plot, particles);
+            plot(Cell(conversion_x, int(COLUMNS-conversion_y)), amount_to_plot, particles);
+
+            for(int i = 0; i < amount_to_plot; ++i)
+                particles[i] = nullptr;
         }
     }
 }
