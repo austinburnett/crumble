@@ -17,7 +17,7 @@
 #include "particle_system.hpp"
 #include "glfw_wrapper.hpp"
 #include "imgui_wrapper.hpp"
-#include "square.hpp"
+#include "gl_objects.hpp"
 #include "timer.hpp"
 
 // Pixel Simulation Buffer

@@ -1,4 +1,7 @@
-#include "square.hpp"
+#include <glad/glad.h>
+#include <OpenGL/OpenGL.h>
+
+#include "gl_objects.hpp"
 
 // Constructor
 Square::Square() {
@@ -59,6 +62,7 @@ Point::Point() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    // Unbind the VAO.
     glBindVertexArray(0);
 
     // The vertex buffer object can be deleted after the VAO is unbound
