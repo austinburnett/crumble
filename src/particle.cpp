@@ -1,9 +1,6 @@
-#include <random>
-#include <iostream>
-
-#include "grid.hpp"
 #include "particle.hpp"
 #include "particle_types.hpp"
+#include "random.hpp"
 
 
 //------------------------------
@@ -24,18 +21,19 @@ void SandParticle::update(const int i, const int j, Grid& grid) {
         grid.swap(cell, cell.down_right());
     }
 
-    // Generate a random number between [0, 1]
-    std::random_device rand_device_seed;
-    static std::mt19937 rand_generator(rand_device_seed());
-    constexpr int RIGHT_THRESHOLD = 1;
-    std::uniform_int_distribution<std::mt19937::result_type> distrib_1(0, RIGHT_THRESHOLD);
-    const int DIRECTION = distrib_1(rand_generator);
+    constexpr int MOVE_LEFT = 0;
+    const int MOVEMENT_DIRECTION = gen_random_num(0, 1);
 
-    if(j > 0 && i > 0 && !grid.is_cell_empty(cell.down_left()) && grid.at(cell.down_left())->is_affected_by(ParticleType::SAND) && DIRECTION < RIGHT_THRESHOLD) {
-        grid.swap(cell, cell.down_left());
+    if(MOVEMENT_DIRECTION == MOVE_LEFT) {
+        if(j > 0 && i > 0 && !grid.is_cell_empty(cell.down_left()) && grid.at(cell.down_left())->is_affected_by(ParticleType::SAND)) {
+            grid.swap(cell, cell.down_left());
+        }
     }
-    else if(j > 0 && i < COLUMNS-1 && !grid.is_cell_empty(cell.down_right()) && grid.at(cell.down_right())->is_affected_by(ParticleType::SAND) && DIRECTION >= RIGHT_THRESHOLD) {
-        grid.swap(cell, cell.down_right());
+    // Move right.
+    else {
+        if(j > 0 && i < COLUMNS-1 && !grid.is_cell_empty(cell.down_right()) && grid.at(cell.down_right())->is_affected_by(ParticleType::SAND)) {
+            grid.swap(cell, cell.down_right());
+        }
     }
 }
 
@@ -46,7 +44,6 @@ bool SandParticle::is_affected_by(const int particle_id) const {
 void SandParticle::interact_with(const int particle_id, Cell cell, Grid& grid) const {
     switch(particle_id) {
         default: {
-
         }
     }
 }
@@ -63,13 +60,8 @@ const std::string WaterParticle::name = "Water";
 void WaterParticle::update(const int i, const int j, Grid& grid) {
     Cell curr_cell(i, j);
 
-    // Generate a random number between [0, 1]
-    std::random_device rand_device_seed;
-    static std::mt19937 rand_generator(rand_device_seed());
-    constexpr int RIGHT_THRESHOLD = 1;
-
-    std::uniform_int_distribution<std::mt19937::result_type> distrib_1(0, RIGHT_THRESHOLD);
-    const int DIRECTION = distrib_1(rand_generator);
+    constexpr int MOVE_RIGHT = 1;
+    const int MOVE_DIRECTION = gen_random_num(0, MOVE_RIGHT);
 
     // Move particle down one block if nothing is there
     if(j > 0 && grid.is_cell_empty(curr_cell.down())) {
@@ -84,11 +76,11 @@ void WaterParticle::update(const int i, const int j, Grid& grid) {
         grid.swap(curr_cell, curr_cell.down_right());
     }
     // Move particle left if nothing is there
-    else if(i-get_dispersion_rate() > 0 && DIRECTION < RIGHT_THRESHOLD) {
+    else if(i-get_dispersion_rate() > 0 && MOVE_DIRECTION != MOVE_RIGHT) {
         grid.move_cell_left_until_blocked(Cell(i, j), get_dispersion_rate());
     }
     // Move particle right if nothing is there
-    else if(i+get_dispersion_rate() < ROWS && DIRECTION >= RIGHT_THRESHOLD) {
+    else if(i+get_dispersion_rate() < ROWS && MOVE_DIRECTION == MOVE_RIGHT) {
         grid.move_cell_right_until_blocked(Cell(i, j), get_dispersion_rate());
     }
 }
@@ -165,32 +157,28 @@ const std::string SmokeParticle::name = "Smoke";
 
 void SmokeParticle::update(const int i, const int j, Grid& grid) {
     Cell curr_cell(i, j);
-    lifetime_left_--;
+    m_lifetime_left--;
 
-    if(lifetime_left_ <= 0) {
-        delete grid.at(curr_cell.x, curr_cell.y);
-        grid.at(curr_cell.x, curr_cell.y) = NULL;
+    if(m_lifetime_left <= 0) {
+        grid.remove(curr_cell.x, curr_cell.y);
         return;
     }
 
-    std::random_device rand_device_seed;
-    static std::mt19937 rand_generator(rand_device_seed());
-    std::uniform_int_distribution<std::mt19937::result_type> distrib_100(1,100);
-    int scatter_chance = distrib_100(rand_generator);
+    const Direction direction = gen_random_weighted_vertical_direction(80, 10, 10);
 
-    if(j < COLUMNS-1 && grid.is_cell_empty(curr_cell.up()) && will_go_up(scatter_chance)) {
+    if(j < COLUMNS-1 && grid.is_cell_empty(curr_cell.up()) && direction == Direction::UP) {
         grid.swap(curr_cell, curr_cell.up());
     }
-    else if(i > 0 && j < COLUMNS-1 && grid.is_cell_empty(curr_cell.up_left()) && will_go_up_left(scatter_chance)) {
+    else if(i > 0 && j < COLUMNS-1 && grid.is_cell_empty(curr_cell.up_left()) && direction == Direction::UP_LEFT) {
         grid.swap(curr_cell, curr_cell.up_left());
     }
-    else if(i < ROWS-1 && j < COLUMNS-1 && grid.is_cell_empty(curr_cell.up_right()) && will_go_up_right(scatter_chance)) {
+    else if(i < ROWS-1 && j < COLUMNS-1 && grid.is_cell_empty(curr_cell.up_right()) && direction == Direction::UP_RIGHT) {
         grid.swap(curr_cell, curr_cell.up_right());
     }
-    else if(i > 0 && grid.is_cell_empty(curr_cell.left()) && scatter_chance <= 50) {
+    else if(i > 0 && grid.is_cell_empty(curr_cell.left())) {
         grid.swap(curr_cell, curr_cell.left());
     }
-    else if(i < ROWS-1 && grid.is_cell_empty(curr_cell.right()) && scatter_chance > 50) {
+    else if(i < ROWS-1 && grid.is_cell_empty(curr_cell.right())) {
         grid.swap(curr_cell, curr_cell.right());
     }
 }
@@ -209,27 +197,6 @@ void SmokeParticle::interact_with(const int particle_id, Cell cell, Grid& grid) 
 
 Color3 SmokeParticle::get_color() const {
     return Color3(0.4f, 0.4f, 0.4f); 
-}
-
-bool SmokeParticle::will_go_up(int val) const {
-    if(val <= up_chance) {
-        return true;
-    }
-    return false;
-}
-
-bool SmokeParticle::will_go_up_left(int val) const {
-    if(val > up_chance && val <= up_chance + up_left_chance) {
-        return true;
-    }
-    return false;
-}
-
-bool SmokeParticle::will_go_up_right(int val) const {
-    if(val > up_chance + up_left_chance) {
-        return true;
-    }
-    return false;
 }
 
 //------------------------------
@@ -289,10 +256,7 @@ void FireParticle::update(const int i, const int j, Grid& grid) {
         return;
     }
 
-    std::random_device rand_device_seed;
-    static std::mt19937 rand_generator(rand_device_seed());
-    std::uniform_int_distribution<std::mt19937::result_type> distrib_100(1,100);
-    int flame_expansion_chance = distrib_100(rand_generator);
+    int flame_expansion_chance = gen_random_num(1, 100);
     constexpr int THRESHOLD = 90;
 
     if(flame_expansion_chance > THRESHOLD) {
@@ -369,32 +333,28 @@ const std::string SteamParticle::name = "Steam";
 
 void SteamParticle::update(const int i, const int j, Grid& grid) {
     Cell curr_cell(i, j);
-    lifetime_left_--;
+    m_lifetime_left--;
 
-    if(lifetime_left_ <= 0) {
-        delete grid.at(curr_cell.x, curr_cell.y);
-        grid.at(curr_cell.x, curr_cell.y) = NULL;
+    if(m_lifetime_left <= 0) {
+        grid.remove(curr_cell.x, curr_cell.y);
         return;
     }
 
-    std::random_device rand_device_seed;
-    static std::mt19937 rand_generator(rand_device_seed());
-    std::uniform_int_distribution<std::mt19937::result_type> distrib_100(1,100);
-    int scatter_chance = distrib_100(rand_generator);
+    Direction direction = gen_random_weighted_vertical_direction(60, 20, 20);
 
-    if(j < COLUMNS-1 && grid.is_cell_empty(curr_cell.up()) && will_go_up(scatter_chance)) {
+    if(j < COLUMNS-1 && grid.is_cell_empty(curr_cell.up()) && direction == Direction::UP) {
         grid.swap(curr_cell, curr_cell.up());
     }
-    else if(i > 0 && j < COLUMNS-1 && grid.is_cell_empty(curr_cell.up_left()) && will_go_up_left(scatter_chance)) {
+    else if(i > 0 && j < COLUMNS-1 && grid.is_cell_empty(curr_cell.up_left()) && direction == Direction::UP_LEFT) {
         grid.swap(curr_cell, curr_cell.up_left());
     }
-    else if(i < ROWS-1 && j < COLUMNS-1 && grid.is_cell_empty(curr_cell.up_right()) && will_go_up_right(scatter_chance)) {
+    else if(i < ROWS-1 && j < COLUMNS-1 && grid.is_cell_empty(curr_cell.up_right()) && direction == Direction::UP_RIGHT) {
         grid.swap(curr_cell, curr_cell.up_right());
     }
-    else if(i > 0 && grid.is_cell_empty(curr_cell.left()) && scatter_chance <= 50) {
+    else if(i > 0 && grid.is_cell_empty(curr_cell.left())) {
         grid.swap(curr_cell, curr_cell.left());
     }
-    else if(i < ROWS-1 && grid.is_cell_empty(curr_cell.right()) && scatter_chance > 50) {
+    else if(i < ROWS-1 && grid.is_cell_empty(curr_cell.right())) {
         grid.swap(curr_cell, curr_cell.right());
     }
 }
@@ -415,23 +375,6 @@ Color3 SteamParticle::get_color() const {
     return Color3(0.75f, 0.75f, 0.75f); 
 }
 
-bool SteamParticle::will_go_up(int val) const {
-    if(val <= up_chance) {
-        return true;
-    }
-    return false;
-}
-
-bool SteamParticle::will_go_up_left(int val) const {
-    if(val > up_chance && val <= up_chance + up_left_chance) {
-        return true;
-    }
-    return false;
-}
-
-bool SteamParticle::will_go_up_right(int val) const {
-    if(val > up_chance + up_left_chance) {
-        return true;
-    }
-    return false;
-}
+//------------------------------
+// Gas
+//------------------------------

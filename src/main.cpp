@@ -20,8 +20,6 @@
 #include "gl_objects.hpp"
 #include "timer.hpp"
 
-// Pixel Simulation Buffer
-// [0][0] is the bottom-left corner of the window
 inline Grid GRID;
 
 int main() {

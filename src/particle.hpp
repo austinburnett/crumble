@@ -8,7 +8,6 @@
 
 using Color3 = glm::vec3;
 
-
 class Particle {
 public:
     Particle() = default;
@@ -32,21 +31,22 @@ public:
     bool has_been_drawn  = false;
 };
 
+// Liquids can fall down and move horizontally.
 class Liquid {
 protected:
     // Return the rate at which it spreads out horizontally.
     virtual int get_dispersion_rate() const = 0;
 };
 
+// Solids don't move.
 class Solid {
 protected:
 };
 
-// They need to move rapidly in all directions.
-// Return the rate at which it spreads out horizontally and vertically.
+// Gasses have a limited lifetime and can move in all direction.
 class Gas {
 public:
-    Gas() = default;
+    Gas()          = default;
     virtual ~Gas() = default;
 
 protected:
@@ -55,15 +55,8 @@ protected:
     virtual int get_horizontal_scatter_rate() const = 0;
     */
 
-    virtual bool will_go_up_left(int val) const = 0;
-    virtual bool will_go_up_right(int val) const = 0;
-    virtual bool will_go_up(int val) const = 0;
-
 protected:
-    // The sum of chances must be 100.
-    int up_chance = 80;
-    int up_left_chance = 10;
-    int up_right_chance = 10;
+    int m_lifetime_left = 2000; // Number of frames before it dissipates.
 };
 
 class Plasma {
@@ -80,7 +73,6 @@ public:
     void interact_with(const int particle_id, Cell cell, Grid& grid) const override;
 
 public:
-    constexpr static int id = 0;
     const static std::string name;
 };
 
@@ -96,7 +88,6 @@ public:
     int get_dispersion_rate() const override;
 
 public:
-    constexpr static int id = 1;
     const static std::string name;
 };
 
@@ -110,7 +101,6 @@ public:
     void interact_with(const int particle_id, Cell cell, Grid& grid) const override;
 
 public:
-    constexpr static int id = 2;
     const static std::string name;
 };
 
@@ -127,20 +117,9 @@ public:
     int get_vertical_scatter_rate() const override;
     int get_horizontal_scatter_rate() const override;
     */
-    bool will_go_up_left(int val) const override;
-    bool will_go_up_right(int val) const override;
-    bool will_go_up(int val) const override;
 
 public:
-    constexpr static int id = 3;
     const static std::string name;
-    int lifetime_left_          = 2000;      // The duration.
-
-protected:
-    // Modify from top to bottom.
-    int up_chance       = 40;
-    int up_left_chance  = 30;
-    int up_right_chance = 30;
 };
 
 class WoodParticle: public Particle, public Solid {
@@ -155,7 +134,6 @@ public:
     Particle* by_fire() const;
 
 public:
-    constexpr static int id = 4;
     const static std::string name;
 };
 
@@ -169,7 +147,6 @@ public:
     void interact_with(const int particle_id, Cell cell, Grid& grid) const override;
 
 public:
-    constexpr static int id = 5;
     const static std::string name;
 
 private:
@@ -195,16 +172,11 @@ public:
     int get_vertical_scatter_rate() const override;
     int get_horizontal_scatter_rate() const override;
     */
-    bool will_go_up_left(int val) const override;
-    bool will_go_up_right(int val) const override;
-    bool will_go_up(int val) const override;
 
 public:
-    constexpr static int id = 6;
     const static std::string name;
-    int lifetime_left_          = 2000;      // The duration.
 
-protected:
+private:
     // Modify from top to bottom.
     int up_chance       = 40;
     int up_left_chance  = 30;

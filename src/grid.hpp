@@ -29,7 +29,10 @@ public:
 
 class Grid {
 private:
-    // [0][0] is the bottom-left corner of the window
+    // [0][0] stores the particle at the bottom-left corner of the window.
+    // The interpretation of the matrix can be thought of like so [x][y],
+    // where increases in x stores something farther to the right and 
+    // increases in y stores something that is ascending.
     Particle* grid[ROWS][COLUMNS];
 
 private:
@@ -78,7 +81,7 @@ public:
     void reset_has_been_drawn_flags();
 
     // Frees all the stored pointers.
-    // This can "clear" the matter from the window.
+    // This can "clear" the data from the window.
     void clear();
 };
 

@@ -14,7 +14,7 @@ extern Grid GRID;
 extern const unsigned int COLUMNS;
 extern const unsigned int ROWS;
 
-int ParticleSystem::active_particle = SandParticle::id;
+int ParticleSystem::active_particle = ParticleType::SAND;
 int ParticleSystem::s_particle_size = 0;
 
 ParticleSystem::ParticleSystem(GLFWwindow* window) {
@@ -144,8 +144,8 @@ void plot_particles_in_grid(GLFWwindow* window) {
             int width, height;
             glfwGetWindowSize(window, &width, &height);
 
-            // Sync cursor to where the particles render at. This fixes the
-            // resolution dependency of my system.
+            // Sync cursor to where the particles render at. The particles
+            // will render offset from the cursor position without this.
             double x_over_width = xpos / width, y_over_height = ypos / height;
             int conversion_x = x_over_width * ROWS;
             int conversion_y = y_over_height * COLUMNS;
@@ -153,7 +153,6 @@ void plot_particles_in_grid(GLFWwindow* window) {
             // Flip the cursor's y-position such that it increases upwards.
             // This is necessary because I like working with coordinate systems
             // that have the origin in the bottom-left as opposed to the top-left.
-            //plot(Cell(int(xpos), int(COLUMNS-ypos)), amount_to_plot, particles);
             plot(Cell(conversion_x, int(COLUMNS-conversion_y)), amount_to_plot, particles);
 
             for(int i = 0; i < amount_to_plot; ++i)
