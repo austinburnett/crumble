@@ -43,14 +43,21 @@ inline Direction gen_random_weighted_vertical_direction(int up_weight, int up_le
     weight_of[Direction::UP_LEFT]  = up_left_weight;
     weight_of[Direction::UP_RIGHT] = up_right_weight;
 
-    int weighted_total = up_weight + up_left_weight + up_right_weight;
-    int random_num = gen_random_num(1, weighted_total);
+    int total_weight = up_weight + up_left_weight + up_right_weight;
+    int random_num = gen_random_num(1, total_weight);
     int running_total = 0;
     
+    // Reserve a portion of the range so that the odds of occurring match
+    // the weight of the direction that is specified. For instance, the 
+    // weight value 25 corresponds to a 25% chance and it recieves that 
+    // chance due to reserving 25 units of the total range defined above.
+    // The position of the 25 units is irrelvant, it doesn't matter if its
+    // the first 25, second 25, or last 25 units in the range.
     for(auto &it: weight_of) {
         running_total += it.second;
 
-        if(running_total > random_num)
+        if(running_total >= random_num)
             return it.first;
     }
+    return Direction::INVALID;
 }
