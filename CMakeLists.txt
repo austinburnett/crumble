@@ -42,7 +42,7 @@ endif()
 #---------------------------------------------
 #              Find GLFW
 #---------------------------------------------
-find_library(GLFW_LIBRARY glfw) 
+find_library(GLFW_LIBRARY NAMES glfw glfw3) 
 
 if (GLFW_LIBRARY)
     message(STATUS "Found the GLFW library: ${GLFW_LIBRARY}")
